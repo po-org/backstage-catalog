@@ -43,4 +43,4 @@ spec:
         path: /proxy/github/api/v3/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
           content-type: "application/json"
-
+          Accept: "application/vnd.github.v3+json"
