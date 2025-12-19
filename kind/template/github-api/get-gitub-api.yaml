@@ -8,7 +8,7 @@ metadata:
     - github
     - api
 spec:
-  owner: c-nell
+  owner: user:default/c-nell
   type: service
 
   parameters:
