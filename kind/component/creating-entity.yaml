@@ -104,11 +104,10 @@ spec:
       action: debug:log
       input:
         message: |
-          ✅ Successfully created catalog entity!
+          Successfully created catalog entity!
           Entity: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
 
   output:
     text:
       - title: Entity Created
-        content: |
-          Entity Reference: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
+        content: 'Entity Reference: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}'
