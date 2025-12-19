@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: additional-features-showcase
-  title: 🎯 Additional Features Showcase Template
+  name: missing-features-showcase
+  title: 🎯 Missing Features Showcase Template
   description: Demonstrates all the additional UI features that were missing from the previous example
   tags:
     - showcase
