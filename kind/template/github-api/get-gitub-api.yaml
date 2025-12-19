@@ -35,7 +35,7 @@ spec:
           default: false
 
   steps:
-    - id: get-repo
+    - id: get-repo-data
       name: Get Repository Details
       action: http:backstage:request
       input:
@@ -44,3 +44,10 @@ spec:
         headers:
           content-type: "application/json"
           Accept: "application/vnd.github.v3+json"
+
+    - id: log_github_debug
+      name: Log GitHub Info
+      action: debug:log
+      input: 
+        message: |
+          GitHub for ${{ steps.get-repo-data.output.body | dump }}
