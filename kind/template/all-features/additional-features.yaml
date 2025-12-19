@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: missing-features-showcase
-  title: 🎯 Missing Features Showcase Template
+  name: additional-features-showcase
+  title: 🎯 Additional features Showcase Template
   description: Demonstrates all the additional UI features that were missing from the previous example
   tags:
     - showcase
@@ -159,3 +159,367 @@ spec:
           type: string
           description: |
             Connection string format:
+```
+            postgresql://username:password@host:port/database
+```
+            
+            See documentation for details.
+          ui:enableMarkdownInDescription: true
+          ui:help: 'Click the link for connection string format'
+          ui:helpLink: 'https://www.postgresql.org/docs/current/libpq-connect.html'
+          ui:placeholder: 'postgresql://user:pass@localhost:5432/mydb'
+
+    # ========================================
+    # PAGE 4: BACKSTAGE REVIEW OPTIONS
+    # ========================================
+    - title: Secret & Hidden Fields
+      description: Fields that are masked or hidden in review
+      properties:
+        password:
+          title: Password
+          type: string
+          description: Your secure password
+          ui:field: Secret
+          ui:placeholder: 'Enter a strong password'
+          ui:backstage:
+            review:
+              mask: true
+          ui:help: 'Password will be masked in the review step'
+        
+        privateToken:
+          title: Private Token
+          type: string
+          description: Private access token
+          ui:field: Secret
+          ui:backstage:
+            review:
+              show: false
+          ui:help: 'This field will not appear in the review step at all'
+        
+        internalConfig:
+          title: Internal Configuration
+          type: string
+          description: Internal configuration that should not be reviewed
+          default: '{"internal": "config"}'
+          ui:widget: textarea
+          ui:backstage:
+            review:
+              show: false
+          ui:help: 'Hidden from review for security'
+
+    # ========================================
+    # PAGE 5: CUSTOM ERROR MESSAGES
+    # ========================================
+    - title: Custom Validation Messages
+      description: Fields with custom error messages
+      properties:
+        projectName:
+          title: Project Name
+          type: string
+          description: Name of your project
+          pattern: '^[a-zA-Z][a-zA-Z0-9-]*$'
+          minLength: 3
+          maxLength: 30
+          ui:placeholder: 'My-Project'
+          errorMessage:
+            pattern: 'Project name must start with a letter and contain only letters, numbers, and hyphens'
+            minLength: 'Project name must be at least 3 characters long'
+            maxLength: 'Project name cannot exceed 30 characters'
+        
+        version:
+          title: Version Number
+          type: string
+          description: Semantic version (e.g., 1.0.0)
+          pattern: '^\d+\.\d+\.\d+$'
+          default: '1.0.0'
+          ui:placeholder: '1.0.0'
+          errorMessage:
+            pattern: 'Version must follow semantic versioning format (e.g., 1.0.0)'
+        
+        port:
+          title: Port Number
+          type: integer
+          description: Application port
+          minimum: 1024
+          maximum: 65535
+          default: 8080
+          ui:placeholder: '8080'
+          errorMessage:
+            minimum: 'Port must be at least 1024 (ports below 1024 require root privileges)'
+            maximum: 'Port cannot exceed 65535 (maximum valid port number)'
+
+    # ========================================
+    # PAGE 6: COLUMN LAYOUT
+    # ========================================
+    - title: Multi-Column Layout
+      description: Fields arranged in columns for better space utilization
+      properties:
+        region:
+          title: Region
+          type: string
+          description: Deployment region
+          enum:
+            - us-east-1
+            - us-west-2
+            - eu-west-1
+          default: us-east-1
+          ui:column: 4
+        
+        environment:
+          title: Environment
+          type: string
+          description: Deployment environment
+          enum:
+            - development
+            - staging
+            - production
+          default: development
+          ui:column: 4
+        
+        tier:
+          title: Service Tier
+          type: string
+          description: Service tier
+          enum:
+            - free
+            - standard
+            - premium
+          default: standard
+          ui:column: 4
+        
+        cpuLimit:
+          title: CPU Limit
+          type: string
+          description: CPU resource limit
+          default: '500m'
+          ui:placeholder: '500m'
+          ui:column: 6
+        
+        memoryLimit:
+          title: Memory Limit
+          type: string
+          description: Memory resource limit
+          default: '512Mi'
+          ui:placeholder: '512Mi'
+          ui:column: 6
+        
+        minReplicas:
+          title: Min Replicas
+          type: integer
+          description: Minimum pod replicas
+          default: 1
+          minimum: 1
+          ui:column: 4
+        
+        maxReplicas:
+          title: Max Replicas
+          type: integer
+          description: Maximum pod replicas
+          default: 10
+          minimum: 1
+          ui:column: 4
+        
+        targetCpu:
+          title: Target CPU %
+          type: integer
+          description: Target CPU utilization
+          default: 80
+          minimum: 1
+          maximum: 100
+          ui:column: 4
+
+    # ========================================
+    # PAGE 7: FIELD ORDERING
+    # ========================================
+    - title: Custom Field Order
+      description: Fields displayed in a specific order
+      ui:order:
+        - priority
+        - componentType
+        - description
+        - tags
+        - notes
+      properties:
+        notes:
+          title: Additional Notes
+          type: string
+          description: Any additional notes
+          ui:widget: textarea
+          ui:placeholder: 'Enter any additional information...'
+        
+        priority:
+          title: Priority Level
+          type: string
+          description: How critical is this component
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+          default: medium
+          ui:widget: radio
+        
+        tags:
+          title: Tags
+          type: array
+          description: Categorization tags
+          items:
+            type: string
+          ui:placeholder: 'Add tags...'
+        
+        componentType:
+          title: Component Type
+          type: string
+          description: Type of component
+          enum:
+            - service
+            - library
+            - website
+          default: service
+        
+        description:
+          title: Description
+          type: string
+          description: Brief description
+          ui:widget: textarea
+          ui:placeholder: 'Describe your component...'
+
+    # ========================================
+    # PAGE 8: EMPTY VALUE HANDLING
+    # ========================================
+    - title: Empty Value Behavior
+      description: Control how empty values are handled
+      properties:
+        optionalField1:
+          title: Optional Field (Empty String)
+          type: string
+          description: Optional field that defaults to empty string
+          ui:emptyValue: ''
+          ui:placeholder: 'Leave empty if not applicable'
+        
+        optionalField2:
+          title: Optional Field (Null)
+          type: string
+          description: Optional field that can be null
+          ui:placeholder: 'Optional value'
+        
+        requiredField:
+          title: Required Field
+          type: string
+          description: This field must be filled
+          ui:emptyValue: ''
+          ui:placeholder: 'This field is required'
+      required:
+        - requiredField
+
+  # ========================================
+  # STEPS - REQUIRED SECTION
+  # ========================================
+  steps:
+    - id: log_all_features
+      name: Log All Feature Values
+      action: debug:log
+      input:
+        message: |
+          🎯 MISSING FEATURES SHOWCASE - SUBMITTED VALUES
+          
+          === Text Inputs with Placeholders ===
+          Username: ${{ parameters.username }}
+          First Name: ${{ parameters.firstName }}
+          Last Name: ${{ parameters.lastName }}
+          Email: ${{ parameters.email }}
+          Phone: ${{ parameters.phoneNumber }}
+          Website: ${{ parameters.website }}
+          
+          === Read-Only/Disabled Fields ===
+          Generated ID: ${{ parameters.generatedId }}
+          System Value: ${{ parameters.systemValue }}
+          Timestamp: ${{ parameters.timestamp }}
+          Editable: ${{ parameters.editableField }}
+          
+          === Markdown & Help Links ===
+          Component Name: ${{ parameters.componentName }}
+          Database URL: ${{ parameters.databaseUrl }}
+          
+          === Validation with Custom Errors ===
+          Project Name: ${{ parameters.projectName }}
+          Version: ${{ parameters.version }}
+          Port: ${{ parameters.port }}
+          
+          === Multi-Column Layout ===
+          Region: ${{ parameters.region }}
+          Environment: ${{ parameters.environment }}
+          Tier: ${{ parameters.tier }}
+          CPU: ${{ parameters.cpuLimit }}
+          Memory: ${{ parameters.memoryLimit }}
+          Replicas: ${{ parameters.minReplicas }}-${{ parameters.maxReplicas }}
+          Target CPU: ${{ parameters.targetCpu }}%
+          
+          === Custom Field Order ===
+          Priority: ${{ parameters.priority }}
+          Type: ${{ parameters.componentType }}
+          Description: ${{ parameters.description }}
+          Tags: ${{ parameters.tags }}
+          Notes: ${{ parameters.notes }}
+          
+          === Empty Value Handling ===
+          Optional 1: "${{ parameters.optionalField1 }}"
+          Optional 2: "${{ parameters.optionalField2 }}"
+          Required: "${{ parameters.requiredField }}"
+    
+    - id: log_secrets_note
+      name: Note About Secrets
+      action: debug:log
+      input:
+        message: |
+          🔐 SECRETS HANDLING
+          
+          Note: Fields marked with ui:field: Secret are accessed via:
+          - ${{ secrets.apiKey }}
+          - ${{ secrets.password }}
+          - ${{ secrets.privateToken }}
+          
+          These values are automatically masked in logs and the review step.
+    
+    - id: log_presentation
+      name: Log Presentation Config
+      action: debug:log
+      input:
+        message: |
+          🎨 PRESENTATION CUSTOMIZATION
+          
+          Custom Button Labels:
+          - Back Button: "← Go Back"
+          - Create Button: "🚀 Deploy Now"
+          - Review Button: "👀 Review Configuration"
+
+  # ========================================
+  # OUTPUT
+  # ========================================
+  output:
+    links:
+      - title: 📚 Backstage Documentation
+        url: https://backstage.io/docs/features/software-templates/writing-templates
+      - title: 🎨 JSON Schema Form Playground
+        url: https://rjsf-team.github.io/react-jsonschema-form/
+    text:
+      - title: Template Completed
+        content: |
+          Successfully demonstrated all missing UI features!
+          
+          Key features showcased:
+          ✅ ui:placeholder
+          ✅ ui:emptyValue
+          ✅ ui:autocomplete
+          ✅ ui:disabled & ui:readonly
+          ✅ ui:enableMarkdownInDescription
+          ✅ ui:helpLink
+          ✅ ui:backstage (review masking)
+          ✅ ui:column (multi-column layout)
+          ✅ ui:order (custom field ordering)
+          ✅ errorMessage (custom validation)
+          ✅ presentation.buttonLabels
+      - title: Component Name
+        content: ${{ parameters.componentName }}
+      - title: Project Name
+        content: ${{ parameters.projectName }}
