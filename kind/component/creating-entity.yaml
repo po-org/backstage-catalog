@@ -93,50 +93,6 @@ spec:
           items:
             type: string
           ui:placeholder: 'Add tags...'
-          default: []
-
-    - title: Additional Information
-      properties:
-        system:
-          title: System
-          type: string
-          description: Which system does this belong to? (optional)
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: System
-        
-        dependsOn:
-          title: Dependencies
-          type: array
-          description: What other entities does this depend on?
-          items:
-            type: string
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: 
-                - Component
-                - Resource
-            multiple: true
-        
-        providesApi:
-          title: Provides APIs
-          type: array
-          description: What APIs does this entity provide?
-          items:
-            type: string
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: API
-            multiple: true
-        
-        customAnnotation:
-          title: Custom Annotation
-          type: string
-          description: Add a custom annotation (optional)
-          ui:placeholder: 'custom-key: custom-value'
 
   steps:
     - id: log_params
@@ -163,14 +119,11 @@ spec:
             description: ${{ parameters.description }}
             annotations:
               backstage.io/managed-by-location: "scaffolder:default/register-catalog-entity"
-            tags: ${{ parameters.tags }}
+            ${{ 'tags: ' + parameters.tags if parameters.tags else '' }}
           spec:
             type: ${{ parameters.entityType }}
             lifecycle: ${{ parameters.lifecycle }}
             owner: ${{ parameters.owner }}
-            system: ${{ parameters.system }}
-            dependsOn: ${{ parameters.dependsOn }}
-            providesApis: ${{ parameters.providesApi }}
 
     - id: log_success
       name: Log Success
