@@ -309,7 +309,7 @@ spec:
             catalogFilter:
               - kind: User
               - kind: Group
-        
+
         # Entity picker (any catalog entity)
         relatedEntity:
           title: Related Entity
@@ -340,7 +340,7 @@ spec:
           ui:field: EntityNamePicker
         
         # Multi-entity picker
-        dependencies:
+        componentDependencies:  # Changed from 'dependencies'
           title: Dependencies
           type: array
           description: Select multiple entities as dependencies
@@ -351,7 +351,7 @@ spec:
             catalogFilter:
               kind: Component
             multiple: true
-
+            
     # ========================================
     # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
     # ========================================
