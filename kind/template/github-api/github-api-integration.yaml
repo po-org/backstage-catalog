@@ -1,0 +1,226 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: github-api-example
+  title: GitHub API Integration Example
+  description: Modern template demonstrating GitHub API calls with enhanced form UI
+  tags:
+    - github
+    - api
+    - modern-ui
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Repository Information
+      required:
+        - repoName
+        - owner
+      properties:
+        repoName:
+          title: Repository Name
+          type: string
+          description: Name of the GitHub repository
+          default: my-new-repo
+          ui:autofocus: true
+          ui:help: 'Use lowercase letters, numbers, and hyphens only'
+          pattern: '^[a-z0-9-]+$'
+          minLength: 3
+          maxLength: 50
+        
+        owner:
+          title: Repository Owner
+          type: string
+          description: GitHub username or organization
+          default: C-Nell
+          ui:help: 'GitHub account that will own this repository'
+        
+        description:
+          title: Repository Description
+          type: string
+          description: A brief description of your repository
+          default: "Repository created from Backstage template"
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        
+        repoType:
+          title: Repository Type
+          type: string
+          description: What type of repository is this?
+          enum:
+            - service
+            - library
+            - website
+            - documentation
+          enumNames:
+            - 'Service (microservice/API)'
+            - 'Library (npm/pip package)'
+            - 'Website (frontend app)'
+            - 'Documentation (docs site)'
+          default: service
+          ui:help: 'Select the primary purpose of this repository'
+        
+        visibility:
+          title: Repository Visibility
+          type: string
+          description: Who can see this repository?
+          enum:
+            - public
+            - private
+          enumNames:
+            - 'Public (visible to everyone)'
+            - 'Private (restricted access)'
+          default: private
+          ui:widget: radio
+        
+        topics:
+          title: Repository Topics
+          type: array
+          description: Add topics to categorize your repository (optional)
+          items:
+            type: string
+          ui:options:
+            orderable: false
+          ui:help: 'Press enter after each topic (e.g., javascript, backend, api)'
+        
+        license:
+          title: License
+          type: string
+          description: Choose a license for your repository
+          enum:
+            - MIT
+            - Apache-2.0
+            - GPL-3.0
+            - BSD-3-Clause
+            - none
+          enumNames:
+            - 'MIT License (permissive)'
+            - 'Apache License 2.0 (permissive)'
+            - 'GNU GPL v3 (copyleft)'
+            - 'BSD 3-Clause (permissive)'
+            - 'No License'
+          default: MIT
+    
+    - title: Advanced Options
+      description: Optional configuration settings
+      properties:
+        defaultBranch:
+          title: Default Branch
+          type: string
+          description: Name of the default branch
+          default: main
+          enum:
+            - main
+            - master
+            - develop
+        
+        enableFeatures:
+          title: Enable Repository Features
+          type: array
+          description: Select features to enable on the repository
+          items:
+            type: string
+            enum:
+              - issues
+              - projects
+              - wiki
+              - discussions
+          uniqueItems: true
+          ui:widget: checkboxes
+          default:
+            - issues
+        
+        autoInit:
+          title: Initialize Repository
+          type: boolean
+          description: Create initial commit with README
+          default: true
+          ui:help: 'Recommended for new repositories'
+        
+        gitignoreTemplate:
+          title: .gitignore Template
+          type: string
+          description: Select a gitignore template (optional)
+          enum:
+            - none
+            - Node
+            - Python
+            - Java
+            - Go
+            - Ruby
+          enumNames:
+            - 'None'
+            - 'Node.js'
+            - 'Python'
+            - 'Java'
+            - 'Go'
+            - 'Ruby'
+          default: none
+
+  steps:
+    - id: get-repo-data
+      name: Get Repository Details
+      action: http:backstage:request
+      input:
+        method: "GET"
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
+        headers:
+          content-type: "application/json"
+          Accept: "application/vnd.github.v3+json"
+    
+    - id: log_status
+      name: Log Status Code
+      action: debug:log
+      input: 
+        message: "✅ API Status Code: ${{ steps['get-repo-data'].output.code }}"
+    
+    - id: log_repo_info
+      name: Log Repository Info
+      action: debug:log
+      input: 
+        message: |
+          📦 Repository Details:
+          - Name: ${{ steps['get-repo-data'].output.body.name }}
+          - Full Name: ${{ steps['get-repo-data'].output.body.full_name }}
+          - Private: ${{ steps['get-repo-data'].output.body.private }}
+          - Owner: ${{ steps['get-repo-data'].output.body.owner.login }}
+          - Description: ${{ steps['get-repo-data'].output.body.description }}
+          - Created: ${{ steps['get-repo-data'].output.body.created_at }}
+          - Updated: ${{ steps['get-repo-data'].output.body.updated_at }}
+          - Default Branch: ${{ steps['get-repo-data'].output.body.default_branch }}
+          - Stars: ${{ steps['get-repo-data'].output.body.stargazers_count }}
+          - Forks: ${{ steps['get-repo-data'].output.body.forks_count }}
+          - Language: ${{ steps['get-repo-data'].output.body.language }}
+          - Visibility: ${{ steps['get-repo-data'].output.body.visibility }}
+    
+    - id: log_permissions
+      name: Log User Permissions
+      action: debug:log
+      input: 
+        message: |
+          🔐 Your Permissions:
+          - Admin: ${{ steps['get-repo-data'].output.body.permissions.admin }}
+          - Push: ${{ steps['get-repo-data'].output.body.permissions.push }}
+          - Pull: ${{ steps['get-repo-data'].output.body.permissions.pull }}
+    
+    - id: log_full_response
+      name: Log Full JSON Response
+      action: debug:log
+      input: 
+        message: |
+          📄 Full API Response:
+          ${{ steps['get-repo-data'].output.body | dump(2) }}
+
+  output:
+    links:
+      - title: Repository URL
+        url: ${{ steps['get-repo-data'].output.body.html_url }}
+      - title: API Response
+        url: ${{ steps['get-repo-data'].output.body.url }}
+    text:
+      - title: Repository Name
+        content: ${{ steps['get-repo-data'].output.body.full_name }}
+      - title: Clone URL
+        content: ${{ steps['get-repo-data'].output.body.clone_url }}
