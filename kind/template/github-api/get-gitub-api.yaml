@@ -10,7 +10,6 @@ metadata:
 spec:
   owner: user:default/c-nell
   type: service
-
   parameters:
     - title: Repository Information
       required:
@@ -21,19 +20,21 @@ spec:
           title: Repository Name
           type: string
           description: Name of the GitHub repository
+          default: backstage-catalog
         owner:
           title: Repository Owner
           type: string
           description: GitHub username or organization
+          default: ${{ user.entity.metadata.name }}
         description:
           title: Repository Description
           type: string
           description: Description for the repository
+          default: "Repository created from Backstage template"
         isPrivate:
           title: Private Repository
           type: boolean
           default: false
-
   steps:
     - id: get-repo-data
       name: Get Repository Details
@@ -44,7 +45,6 @@ spec:
         headers:
           content-type: "application/json"
           Accept: "application/vnd.github.v3+json"
-
     - id: log_github_debug
       name: Log GitHub Info
       action: debug:log
