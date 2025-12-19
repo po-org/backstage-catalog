@@ -1,0 +1,77 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: register-from-github-api
+  title: Register Component from GitHub Repo
+  description: Fetch repo data from GitHub API and register it
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Repository Information
+      properties:
+        repoOwner:
+          title: Repository Owner
+          type: string
+          default: 'C-Nell'
+        
+        repoName:
+          title: Repository Name
+          type: string
+          ui:placeholder: 'backstage-catalog'
+
+  steps:
+    - id: fetch_repo
+      name: Fetch Repository from GitHub
+      action: http:backstage:request
+      input:
+        method: 'GET'
+        path: '/proxy/github/repos/${{ parameters.repoOwner }}/${{ parameters.repoName }}'
+
+    - id: log_response
+      name: Log Response
+      action: debug:log
+      input:
+        message: |
+          Repository: ${{ steps.fetch_repo.output.body.name }}
+          Description: ${{ steps.fetch_repo.output.body.description }}
+          Language: ${{ steps.fetch_repo.output.body.language }}
+          Stars: ${{ steps.fetch_repo.output.body.stargazers_count }}
+
+    - id: fetch_template
+      name: Create Catalog Entry
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          componentName: ${{ steps.fetch_repo.output.body.name }}
+          description: ${{ steps.fetch_repo.output.body.description }}
+          language: ${{ steps.fetch_repo.output.body.language }}
+          stars: ${{ steps.fetch_repo.output.body.stargazers_count }}
+          forks: ${{ steps.fetch_repo.output.body.forks_count }}
+          repoUrl: ${{ steps.fetch_repo.output.body.html_url }}
+          defaultBranch: ${{ steps.fetch_repo.output.body.default_branch }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts:
+          - github.com
+        description: 'Catalog entry for ${{ steps.fetch_repo.output.body.name }}'
+        repoUrl: 'github.com?repo=catalog-${{ steps.fetch_repo.output.body.name }}&owner=C-Nell'
+        repoVisibility: private
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  output:
+    links:
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

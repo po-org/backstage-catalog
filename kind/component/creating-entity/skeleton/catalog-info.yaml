@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.componentName }}
+  description: Service for ${{ values.userName }}
+  annotations:
+    api.user.id: '${{ values.userId }}'
+    api.user.email: ${{ values.userEmail }}
+    api.user.company: ${{ values.userCompany }}
+    api.user.website: ${{ values.userWebsite }}
+    api.source: jsonplaceholder.typicode.com
+  tags:
+    - api-generated
+    - jsonplaceholder
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:default/guest

@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.componentName }}
+  description: ${{ values.description }}
+  annotations:
+    github.com/project-slug: ${{ values.repoUrl | replace('https://github.com/', '') }}
+    github.stars: '${{ values.stars }}'
+    github.forks: '${{ values.forks }}'
+    github.language: ${{ values.language }}
+  tags:
+    - github-api
+    - ${{ values.language }}
+spec:
+  type: library
+  lifecycle: production
+  owner: user:default/guest

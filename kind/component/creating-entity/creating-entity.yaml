@@ -1,0 +1,86 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: register-from-jsonplaceholder
+  title: Register Component from JSONPlaceholder API
+  description: Test registering a component from a public API
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: API Information
+      properties:
+        userId:
+          title: User ID
+          type: integer
+          description: JSONPlaceholder user ID (1-10)
+          default: 1
+          minimum: 1
+          maximum: 10
+
+  steps:
+    # Step 1: Call JSONPlaceholder API
+    - id: fetch_user
+      name: Fetch User from API
+      action: http:backstage:request
+      input:
+        method: 'GET'
+        path: 'https://jsonplaceholder.typicode.com/users/${{ parameters.userId }}'
+
+    # Step 2: Log response
+    - id: log_response
+      name: Log API Response
+      action: debug:log
+      input:
+        message: |
+          API Response:
+          ${{ steps.fetch_user.output.body | dump(2) }}
+
+    # Step 3: Create catalog-info with API data
+    - id: fetch_template
+      name: Create Catalog Entry
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          componentName: user-${{ steps.fetch_user.output.body.id }}-service
+          userName: ${{ steps.fetch_user.output.body.name }}
+          userEmail: ${{ steps.fetch_user.output.body.email }}
+          userCompany: ${{ steps.fetch_user.output.body.company.name }}
+          userWebsite: ${{ steps.fetch_user.output.body.website }}
+          userId: ${{ steps.fetch_user.output.body.id }}
+
+    # Step 4: Publish
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts:
+          - github.com
+        description: 'Component for user ${{ steps.fetch_user.output.body.name }}'
+        repoUrl: 'github.com?repo=user-${{ steps.fetch_user.output.body.id }}-service&owner=C-Nell'
+        defaultBranch: main
+        repoVisibility: private
+
+    # Step 5: Register
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+    text:
+      - title: User Details
+        content: |
+          Registered component for: ${{ steps.fetch_user.output.body.name }}
+          Email: ${{ steps.fetch_user.output.body.email }}
+          Company: ${{ steps.fetch_user.output.body.company.name }}
