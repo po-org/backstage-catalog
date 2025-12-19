@@ -1,113 +1,32 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: register-catalog-entity
-  title: Register Entity in Catalog
-  description: Directly register a new entity in the Backstage catalog
-  tags:
-    - catalog
-    - registration
+  name: register-existing-entity
+  title: Register Existing Entity
+  description: Register an existing catalog-info.yaml from a repository
 spec:
   owner: user:default/c-nell
   type: service
   
   parameters:
-    - title: Entity Information
+    - title: Entity Location
       required:
-        - entityName
-        - entityType
-        - owner
+        - catalogUrl
       properties:
-        entityName:
-          title: Entity Name
+        catalogUrl:
+          title: Catalog Info URL
           type: string
-          description: Unique name for the entity
-          ui:placeholder: 'my-entity-name'
-          pattern: '^[a-z0-9-]+$'
-        
-        entityKind:
-          title: Entity Kind
-          type: string
-          description: What kind of entity is this?
-          enum:
-            - Component
-            - Resource
-            - System
-          default: Component
-        
-        entityType:
-          title: Entity Type
-          type: string
-          description: Specific type of the entity
-          enum:
-            - service
-            - library
-            - website
-            - database
-            - other
-          default: service
-        
-        description:
-          title: Description
-          type: string
-          description: Brief description of the entity
-          ui:widget: textarea
-          ui:placeholder: 'Describe what this entity does...'
-        
-        owner:
-          title: Owner
-          type: string
-          description: Owner in format user:default/username or group:default/groupname
-          ui:placeholder: 'user:default/guest'
-          default: 'user:default/guest'
-        
-        lifecycle:
-          title: Lifecycle
-          type: string
-          description: Current lifecycle stage
-          enum:
-            - experimental
-            - production
-            - deprecated
-          default: experimental
+          description: Full URL to the catalog-info.yaml file
+          ui:placeholder: 'https://github.com/org/repo/blob/main/catalog-info.yaml'
 
   steps:
-    - id: log_params
-      name: Log Parameters
-      action: debug:log
+    - id: register
+      name: Register Entity
+      action: catalog:register
       input:
-        message: |
-          Creating catalog entity:
-          Name: ${{ parameters.entityName }}
-          Kind: ${{ parameters.entityKind }}
-          Type: ${{ parameters.entityType }}
-          Owner: ${{ parameters.owner }}
-          Lifecycle: ${{ parameters.lifecycle }}
-
-    - id: create_catalog_entry
-      name: Create Catalog Entry
-      action: catalog:write
-      input:
-        entity:
-          apiVersion: backstage.io/v1alpha1
-          kind: ${{ parameters.entityKind }}
-          metadata:
-            name: ${{ parameters.entityName }}
-            description: ${{ parameters.description }}
-          spec:
-            type: ${{ parameters.entityType }}
-            lifecycle: ${{ parameters.lifecycle }}
-            owner: ${{ parameters.owner }}
-
-    - id: log_success
-      name: Log Success
-      action: debug:log
-      input:
-        message: |
-          Successfully created catalog entity!
-          Entity: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
+        catalogInfoUrl: ${{ parameters.catalogUrl }}
 
   output:
     text:
-      - title: Entity Created
-        content: 'Entity Reference: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}'
+      - title: Entity Registered
+        content: 'Successfully registered entity from ${{ parameters.catalogUrl }}'
