@@ -25,7 +25,7 @@ spec:
           title: Repository Owner
           type: string
           description: GitHub username or organization
-          default: ${{ user.entity.metadata.name }}
+          default: C-Nell
         description:
           title: Repository Description
           type: string
