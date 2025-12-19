@@ -1,0 +1,46 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: github-api-example
+  title: GitHub API Integration Example
+  description: Template demonstrating GitHub API calls using http:backstage:request
+  tags:
+    - github
+    - api
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Repository Information
+      required:
+        - repoName
+        - owner
+      properties:
+        repoName:
+          title: Repository Name
+          type: string
+          description: Name of the GitHub repository
+        owner:
+          title: Repository Owner
+          type: string
+          description: GitHub username or organization
+        description:
+          title: Repository Description
+          type: string
+          description: Description for the repository
+        isPrivate:
+          title: Private Repository
+          type: boolean
+          default: false
+
+  steps:
+    - id: get-repo
+      name: Get Repository Details
+      action: http:backstage:request
+      input:
+        method: "GET"
+        path: /proxy/github/api/v3/repos/${{ parameters.owner }}/${{ parameters.repoName }}
+        headers:
+          content-type: "application/json"
+
