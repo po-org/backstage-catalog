@@ -40,7 +40,7 @@ spec:
       action: http:backstage:request
       input:
         method: "GET"
-        path: /proxy/github/v3/repos/${{ parameters.owner }}/${{ parameters.repoName }}
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
           content-type: "application/json"
           Accept: "application/vnd.github.v3+json"
