@@ -50,6 +50,6 @@ spec:
       action: debug:log
       input: 
         message: |
-          job_data: "${{ steps.get-repo-data.output.body }}"
-          status_code: "${{ steps.get-repo-data.output.code }}"
-          pretty_json: "${{ steps.get-repo-data.output.body | dump }}"
+          status_code: "${{ steps['get-repo-data'].output.code }}"
+          response_body: "${{ steps['get-repo-data'].output.body }}"
+          headers: "${{ steps['get-repo-data'].output.headers }}"
