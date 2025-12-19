@@ -153,16 +153,13 @@ spec:
           ui:helpLink: 'https://docs.example.com/getting-started/api-keys'
           ui:placeholder: 'sk_live_...'
           ui:field: Secret
-        
+
         databaseUrl:
           title: Database Connection String
           type: string
-          description: |
+          description: >
             Connection string format:
-```
             postgresql://username:password@host:port/database
-```
-            
             See documentation for details.
           ui:enableMarkdownInDescription: true
           ui:help: 'Click the link for connection string format'
