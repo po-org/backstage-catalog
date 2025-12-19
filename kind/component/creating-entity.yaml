@@ -22,8 +22,8 @@ spec:
           title: Entity Name
           type: string
           description: Unique name for the entity
-          ui:field: EntityNamePicker
           ui:placeholder: 'my-entity-name'
+          pattern: '^[a-z0-9-]+$'
         
         entityKind:
           title: Entity Kind
@@ -33,14 +33,6 @@ spec:
             - Component
             - Resource
             - System
-            - Domain
-            - API
-          enumNames:
-            - 'Component (service, library, website)'
-            - 'Resource (database, S3 bucket, cluster)'
-            - 'System (collection of entities)'
-            - 'Domain (business area)'
-            - 'API (API definition)'
           default: Component
         
         entityType:
@@ -51,10 +43,7 @@ spec:
             - service
             - library
             - website
-            - documentation
             - database
-            - storage
-            - queue
             - other
           default: service
         
@@ -68,12 +57,9 @@ spec:
         owner:
           title: Owner
           type: string
-          description: Team or person responsible for this entity
-          ui:field: OwnerPicker
-          ui:options:
-            catalogFilter:
-              - kind: Group
-              - kind: User
+          description: Owner in format user:default/username or group:default/groupname
+          ui:placeholder: 'user:default/guest'
+          default: 'user:default/guest'
         
         lifecycle:
           title: Lifecycle
@@ -83,16 +69,7 @@ spec:
             - experimental
             - production
             - deprecated
-            - decommissioned
           default: experimental
-        
-        tags:
-          title: Tags
-          type: array
-          description: Tags for categorization
-          items:
-            type: string
-          ui:placeholder: 'Add tags...'
 
   steps:
     - id: log_params
@@ -117,9 +94,6 @@ spec:
           metadata:
             name: ${{ parameters.entityName }}
             description: ${{ parameters.description }}
-            annotations:
-              backstage.io/managed-by-location: "scaffolder:default/register-catalog-entity"
-            ${{ 'tags: ' + parameters.tags if parameters.tags else '' }}
           spec:
             type: ${{ parameters.entityType }}
             lifecycle: ${{ parameters.lifecycle }}
@@ -137,11 +111,4 @@ spec:
     text:
       - title: Entity Created
         content: |
-          Your entity has been successfully registered in the catalog!
-          
-          **Entity Reference**: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
-          **Name**: ${{ parameters.entityName }}
-          **Kind**: ${{ parameters.entityKind }}
-          **Type**: ${{ parameters.entityType }}
-          **Owner**: ${{ parameters.owner }}
-          **Lifecycle**: ${{ parameters.lifecycle }}
+          Entity Reference: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
