@@ -1,0 +1,194 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: register-catalog-entity
+  title: Register Entity in Catalog
+  description: Directly register a new entity in the Backstage catalog
+  tags:
+    - catalog
+    - registration
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Entity Information
+      required:
+        - entityName
+        - entityType
+        - owner
+      properties:
+        entityName:
+          title: Entity Name
+          type: string
+          description: Unique name for the entity
+          ui:field: EntityNamePicker
+          ui:placeholder: 'my-entity-name'
+        
+        entityKind:
+          title: Entity Kind
+          type: string
+          description: What kind of entity is this?
+          enum:
+            - Component
+            - Resource
+            - System
+            - Domain
+            - API
+          enumNames:
+            - 'Component (service, library, website)'
+            - 'Resource (database, S3 bucket, cluster)'
+            - 'System (collection of entities)'
+            - 'Domain (business area)'
+            - 'API (API definition)'
+          default: Component
+        
+        entityType:
+          title: Entity Type
+          type: string
+          description: Specific type of the entity
+          enum:
+            - service
+            - library
+            - website
+            - documentation
+            - database
+            - storage
+            - queue
+            - other
+          default: service
+        
+        description:
+          title: Description
+          type: string
+          description: Brief description of the entity
+          ui:widget: textarea
+          ui:placeholder: 'Describe what this entity does...'
+        
+        owner:
+          title: Owner
+          type: string
+          description: Team or person responsible for this entity
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              - kind: Group
+              - kind: User
+        
+        lifecycle:
+          title: Lifecycle
+          type: string
+          description: Current lifecycle stage
+          enum:
+            - experimental
+            - production
+            - deprecated
+            - decommissioned
+          default: experimental
+        
+        tags:
+          title: Tags
+          type: array
+          description: Tags for categorization
+          items:
+            type: string
+          ui:placeholder: 'Add tags...'
+          default: []
+
+    - title: Additional Information
+      properties:
+        system:
+          title: System
+          type: string
+          description: Which system does this belong to? (optional)
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
+        
+        dependsOn:
+          title: Dependencies
+          type: array
+          description: What other entities does this depend on?
+          items:
+            type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: 
+                - Component
+                - Resource
+            multiple: true
+        
+        providesApi:
+          title: Provides APIs
+          type: array
+          description: What APIs does this entity provide?
+          items:
+            type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: API
+            multiple: true
+        
+        customAnnotation:
+          title: Custom Annotation
+          type: string
+          description: Add a custom annotation (optional)
+          ui:placeholder: 'custom-key: custom-value'
+
+  steps:
+    - id: log_params
+      name: Log Parameters
+      action: debug:log
+      input:
+        message: |
+          Creating catalog entity:
+          Name: ${{ parameters.entityName }}
+          Kind: ${{ parameters.entityKind }}
+          Type: ${{ parameters.entityType }}
+          Owner: ${{ parameters.owner }}
+          Lifecycle: ${{ parameters.lifecycle }}
+
+    - id: create_catalog_entry
+      name: Create Catalog Entry
+      action: catalog:write
+      input:
+        entity:
+          apiVersion: backstage.io/v1alpha1
+          kind: ${{ parameters.entityKind }}
+          metadata:
+            name: ${{ parameters.entityName }}
+            description: ${{ parameters.description }}
+            annotations:
+              backstage.io/managed-by-location: "scaffolder:default/register-catalog-entity"
+            tags: ${{ parameters.tags }}
+          spec:
+            type: ${{ parameters.entityType }}
+            lifecycle: ${{ parameters.lifecycle }}
+            owner: ${{ parameters.owner }}
+            system: ${{ parameters.system }}
+            dependsOn: ${{ parameters.dependsOn }}
+            providesApis: ${{ parameters.providesApi }}
+
+    - id: log_success
+      name: Log Success
+      action: debug:log
+      input:
+        message: |
+          ✅ Successfully created catalog entity!
+          Entity: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
+
+  output:
+    text:
+      - title: Entity Created
+        content: |
+          Your entity has been successfully registered in the catalog!
+          
+          **Entity Reference**: ${{ parameters.entityKind }}:default/${{ parameters.entityName }}
+          **Name**: ${{ parameters.entityName }}
+          **Kind**: ${{ parameters.entityKind }}
+          **Type**: ${{ parameters.entityType }}
+          **Owner**: ${{ parameters.owner }}
+          **Lifecycle**: ${{ parameters.lifecycle }}
