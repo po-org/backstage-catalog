@@ -1,0 +1,161 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: additional-features-showcase
+  title: 🎯 Additional Features Showcase Template
+  description: Demonstrates all the additional UI features that were missing from the previous example
+  tags:
+    - showcase
+    - complete-features
+    - ui-options
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  # Custom button labels
+  presentation:
+    buttonLabels:
+      backButtonText: '← Go Back'
+      createButtonText: '🚀 Deploy Now'
+      reviewButtonText: '👀 Review Configuration'
+  
+  parameters:
+    # ========================================
+    # PAGE 1: PLACEHOLDER & AUTOCOMPLETE
+    # ========================================
+    - title: Text Input Features
+      description: Placeholder text and autocomplete examples
+      properties:
+        username:
+          title: Username
+          type: string
+          description: Choose your username
+          ui:placeholder: 'enter-your-username'
+          ui:autofocus: true
+          ui:help: 'Username will be used for login'
+          pattern: '^[a-z0-9-]+$'
+          errorMessage:
+            pattern: 'Username must be lowercase alphanumeric with hyphens only'
+        
+        firstName:
+          title: First Name
+          type: string
+          description: Your first name
+          ui:placeholder: 'John'
+          ui:autocomplete: 'given-name'
+          ui:emptyValue: ''
+          ui:column: 6
+        
+        lastName:
+          title: Last Name
+          type: string
+          description: Your last name
+          ui:placeholder: 'Doe'
+          ui:autocomplete: 'family-name'
+          ui:emptyValue: ''
+          ui:column: 6
+        
+        email:
+          title: Email Address
+          type: string
+          description: Your email for notifications
+          ui:placeholder: 'user@example.com'
+          ui:autocomplete: 'email'
+          format: email
+          errorMessage:
+            format: 'Please enter a valid email address'
+        
+        phoneNumber:
+          title: Phone Number
+          type: string
+          description: Contact phone number
+          ui:placeholder: '+1 (555) 123-4567'
+          ui:options:
+            inputType: tel
+          ui:autocomplete: 'tel'
+        
+        website:
+          title: Personal Website
+          type: string
+          description: Your website URL
+          ui:placeholder: 'https://example.com'
+          ui:autocomplete: 'url'
+          ui:options:
+            inputType: url
+
+    # ========================================
+    # PAGE 2: DISABLED & READONLY FIELDS
+    # ========================================
+    - title: Read-Only & Disabled Fields
+      description: Fields that cannot be edited
+      properties:
+        generatedId:
+          title: Generated ID
+          type: string
+          description: Auto-generated unique identifier
+          default: 'auto-gen-12345-abcde'
+          ui:readonly: true
+          ui:help: 'This value is automatically generated and cannot be changed'
+        
+        systemValue:
+          title: System Value
+          type: string
+          description: System-assigned value
+          default: 'SYSTEM_ASSIGNED'
+          ui:disabled: true
+          ui:help: 'This field is disabled by the system'
+        
+        timestamp:
+          title: Creation Timestamp
+          type: string
+          description: When this template was initiated
+          default: '2025-12-19T20:00:00Z'
+          ui:readonly: true
+        
+        editableField:
+          title: Editable Field
+          type: string
+          description: This field can be edited
+          default: 'You can change this'
+          ui:placeholder: 'Enter custom value...'
+
+    # ========================================
+    # PAGE 3: MARKDOWN & HELP LINKS
+    # ========================================
+    - title: Rich Descriptions & Help Links
+      description: Fields with markdown descriptions and help documentation
+      properties:
+        componentName:
+          title: Component Name
+          type: string
+          description: |
+            Name your component following these rules:
+            
+            **Requirements:**
+            - Must be lowercase
+            - Use hyphens for spaces
+            - 3-50 characters
+            
+            **Examples:**
+            - `my-awesome-component`
+            - `user-management-service`
+          ui:enableMarkdownInDescription: true
+          ui:placeholder: 'my-component-name'
+          pattern: '^[a-z0-9-]+$'
+          minLength: 3
+          maxLength: 50
+        
+        apiKey:
+          title: API Key
+          type: string
+          description: Your API key for external service integration
+          ui:help: 'Need an API key? Click the link below to get one'
+          ui:helpLink: 'https://docs.example.com/getting-started/api-keys'
+          ui:placeholder: 'sk_live_...'
+          ui:field: Secret
+        
+        databaseUrl:
+          title: Database Connection String
+          type: string
+          description: |
+            Connection string format:
