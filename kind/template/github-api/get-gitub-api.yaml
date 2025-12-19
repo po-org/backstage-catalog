@@ -51,5 +51,5 @@ spec:
       input: 
         message: |
           job_data: "${{ steps.get-repo-data.output.body }}"
-          status_code: "{{ steps.get-repo-data.output.code }}"
-          pretty_json: "{{ steps.get-repo-data.body | json }}"
+          status_code: "${{ steps.get-repo-data.output.code }}"
+          pretty_json: "${{ steps.get-repo-data.output.body | dump }}"
