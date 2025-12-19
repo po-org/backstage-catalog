@@ -63,7 +63,7 @@ spec:
           title: Secret Token
           type: string
           description: Hidden password input
-          ui:widget: password
+          ui:field: secret
           ui:help: 'Characters will be hidden as you type'
         
         # Hidden field (not visible in form)
