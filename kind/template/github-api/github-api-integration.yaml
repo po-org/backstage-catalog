@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-api-example
-  title: GitHub API Integration Example
+  name: github-api-example-enhanced
+  title: GitHub API Integration Example Enhanced
   description: Modern template demonstrating GitHub API calls with enhanced form UI
   tags:
     - github
