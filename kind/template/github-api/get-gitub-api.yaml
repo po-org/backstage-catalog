@@ -45,11 +45,12 @@ spec:
         headers:
           content-type: "application/json"
           Accept: "application/vnd.github.v3+json"
+
     - id: log_github_debug
       name: Log GitHub Info
       action: debug:log
       input: 
         message: |
           status_code: "${{ steps['get-repo-data'].output.code }}"
-          response_body: "${{ steps['get-repo-data'].output.body }}"
-          headers: "${{ steps['get-repo-data'].output.headers }}"
+          response_body: ${{ steps['get-repo-data'].output.body | dump }}
+          headers: ${{ steps['get-repo-data'].output.headers | dump }}
