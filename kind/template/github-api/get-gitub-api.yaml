@@ -8,7 +8,7 @@ metadata:
     - github
     - api
 spec:
-  owner: platform-team
+  owner: c-nell
   type: service
 
   parameters:
