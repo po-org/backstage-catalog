@@ -51,16 +51,6 @@ spec:
       action: debug:log
       input: 
         message: |
-          status_code: "${{ steps['get-repo-data'].output.code }}"
-          response_body: ${{ steps['get-repo-data'].output.body | dump }}
-          headers: ${{ steps['get-repo-data'].output.headers | dump }}
-
-
-    - id: log_github_debug2
-      name: Log GitHub Info
-      action: debug:log
-      input: 
-        message: |
           === GitHub API Response ===
           Status: ${{ steps['get-repo-data'].output.code }}
           
