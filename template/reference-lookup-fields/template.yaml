@@ -1,0 +1,72 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: reference-lookup-features
+  title: 🔗 Reference & Lookup Fields
+  description: Fields that reference other data sources
+  tags:
+    - showcase
+    - reference
+    - lookup
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Reference & Lookup Fields
+      description: Fields that reference other data sources
+      properties:
+        cloudRegion:
+          title: Cloud Region
+          type: string
+          description: Select cloud provider region
+          enum:
+            - us-east-1
+            - us-west-2
+            - eu-west-1
+            - ap-southeast-1
+          enumNames:
+            - 'US East (N. Virginia)'
+            - 'US West (Oregon)'
+            - 'EU West (Ireland)'
+            - 'Asia Pacific (Singapore)'
+          default: us-east-1
+        
+        componentRef:
+          title: Component Reference
+          type: string
+          description: Reference to another component
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+        
+        teamGroup:
+          title: Team/Group
+          type: string
+          description: Select a team or group
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+            defaultKind: Group
+
+  steps:
+    - id: log-reference-lookup
+      name: Log Reference and Lookup Values
+      action: debug:log
+      input:
+        message: |
+          🔗 REFERENCE & LOOKUP RESULTS:
+          
+          Cloud Region: ${{ parameters.cloudRegion }}
+          Component Reference: ${{ parameters.componentRef }}
+          Team/Group: ${{ parameters.teamGroup }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured reference and lookup selections

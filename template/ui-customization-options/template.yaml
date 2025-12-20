@@ -1,0 +1,86 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ui-customization-features
+  title: 🎨 UI Customization Options
+  description: Various UI widgets and display options
+  tags:
+    - showcase
+    - ui
+    - customization
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: UI Customization Options
+      description: Various UI widgets and display options
+      properties:
+        themeColor:
+          title: Theme Color
+          type: string
+          description: Pick a color for your theme
+          default: "#3B82F6"
+          ui:widget: color
+        
+        uploadedFile:
+          title: Upload File
+          type: string
+          description: Upload a file (will be base64 encoded)
+          ui:widget: file
+          ui:help: 'File will be encoded as base64'
+        
+        generatedId:
+          title: Generated ID
+          type: string
+          description: Auto-generated identifier
+          default: "auto-generated-id-12345"
+          ui:readonly: true
+          ui:help: 'This field is read-only'
+        
+        withPlaceholder:
+          title: Field with Placeholder
+          type: string
+          description: Shows placeholder text
+          ui:placeholder: 'Enter value here...'
+        
+        firstName:
+          title: First Name
+          type: string
+          ui:column: 6
+        
+        lastName:
+          title: Last Name
+          type: string
+          ui:column: 6
+        
+        apiKey:
+          title: API Key
+          type: string
+          description: Your API key for external service
+          ui:help: 'Get your API key from the dashboard'
+          ui:helpLink: https://docs.example.com/api-keys
+
+  steps:
+    - id: log-ui-customization
+      name: Log UI Customization Values
+      action: debug:log
+      input:
+        message: |
+          🎨 UI CUSTOMIZATION RESULTS:
+          
+          Theme Color: ${{ parameters.themeColor }}
+          Uploaded File: [BASE64 DATA]
+          Generated ID: ${{ parameters.generatedId }}
+          With Placeholder: ${{ parameters.withPlaceholder }}
+          First Name: ${{ parameters.firstName }}
+          Last Name: ${{ parameters.lastName }}
+          API Key: ${{ parameters.apiKey }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured UI customization inputs

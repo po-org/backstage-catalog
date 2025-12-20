@@ -1,0 +1,108 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: conditional-fields-features
+  title: 🔀 Conditional & Dynamic Fields
+  description: Fields that show/hide based on other selections
+  tags:
+    - showcase
+    - conditional
+    - dynamic
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Conditional & Dynamic Fields
+      description: Fields that show/hide based on other selections
+      properties:
+        deploymentType:
+          title: Deployment Type
+          type: string
+          description: Select deployment method
+          enum:
+            - kubernetes
+            - docker
+            - vm
+            - serverless
+          enumNames:
+            - 'Kubernetes'
+            - 'Docker Container'
+            - 'Virtual Machine'
+            - 'Serverless Function'
+          default: kubernetes
+        
+        kubernetesNamespace:
+          title: Kubernetes Namespace
+          type: string
+          description: K8s namespace for deployment
+          default: default
+          ui:help: 'Only visible when Kubernetes is selected'
+        
+        dockerRegistry:
+          title: Docker Registry
+          type: string
+          description: Container registry URL
+          default: "docker.io"
+          ui:help: 'Only visible when Docker is selected'
+        
+        enableAdvanced:
+          title: Enable Advanced Options
+          type: boolean
+          description: Show additional advanced configuration
+          default: false
+        
+        advancedConfig:
+          title: Advanced Configuration
+          type: object
+          description: Advanced settings (only shown if enabled above)
+          properties:
+            customDomain:
+              type: string
+              title: Custom Domain
+            replicas:
+              type: integer
+              title: Number of Replicas
+              default: 3
+            resources:
+              type: object
+              title: Resource Limits
+              properties:
+                cpu:
+                  type: string
+                  title: CPU Limit
+                  default: "500m"
+                memory:
+                  type: string
+                  title: Memory Limit
+                  default: "512Mi"
+      dependencies:
+        enableAdvanced:
+          oneOf:
+            - properties:
+                enableAdvanced:
+                  const: true
+              required:
+                - advancedConfig
+
+  steps:
+    - id: log-conditional-fields
+      name: Log Conditional Field Values
+      action: debug:log
+      input:
+        message: |
+          🔀 CONDITIONAL FIELDS RESULTS:
+          
+          Deployment Type: ${{ parameters.deploymentType }}
+          Kubernetes Namespace: ${{ parameters.kubernetesNamespace }}
+          Docker Registry: ${{ parameters.dockerRegistry }}
+          Advanced Enabled: ${{ parameters.enableAdvanced }}
+          Advanced Config: ${{ parameters.advancedConfig | dump(2) }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured conditional field selections

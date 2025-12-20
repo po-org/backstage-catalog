@@ -1,0 +1,87 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: backstage-pickers-features
+  title: 🎭 Backstage Entity Pickers
+  description: Special Backstage pickers for users, groups, and entities
+  tags:
+    - showcase
+    - backstage
+    - pickers
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Backstage Entity Pickers
+      description: Special Backstage pickers for users, groups, and entities
+      properties:
+        owner:
+          title: Owner
+          type: string
+          description: Select an owner from catalog
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              - kind: User
+              - kind: Group
+
+        relatedEntity:
+          title: Related Entity
+          type: string
+          description: Pick any entity from the catalog
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+            defaultKind: Component
+        
+        repoUrl:
+          title: Repository Location
+          type: string
+          description: Choose a repository location
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+              - gitlab.com
+        
+        entityName:
+          title: Entity Name
+          type: string
+          description: Name for the catalog entity
+          ui:field: EntityNamePicker
+        
+        componentDependencies:
+          title: Dependencies
+          type: array
+          description: Select multiple entities as dependencies
+          items:
+            type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+            multiple: true
+
+  steps:
+    - id: log-backstage-pickers
+      name: Log Backstage Picker Values
+      action: debug:log
+      input:
+        message: |
+          🎭 BACKSTAGE PICKERS RESULTS:
+          
+          Owner: ${{ parameters.owner }}
+          Related Entity: ${{ parameters.relatedEntity }}
+          Repository URL: ${{ parameters.repoUrl }}
+          Entity Name: ${{ parameters.entityName }}
+          Dependencies: ${{ parameters.componentDependencies }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured Backstage picker selections

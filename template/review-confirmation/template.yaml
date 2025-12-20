@@ -1,0 +1,68 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: review-confirmation-features
+  title: ✔️ Review & Confirmation
+  description: Review selections and confirm before proceeding
+  tags:
+    - showcase
+    - review
+    - confirmation
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Basic Information
+      properties:
+        projectName:
+          title: Project Name
+          type: string
+          description: Name of your project
+          ui:autofocus: true
+        
+        description:
+          title: Description
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+    
+    - title: Review & Confirm
+      description: Review your selections before proceeding
+      properties:
+        acceptTerms:
+          title: Accept Terms & Conditions
+          type: boolean
+          description: I have read and accept the terms
+          ui:widget: checkbox
+        
+        confirmCreate:
+          title: Confirm Creation
+          type: boolean
+          description: I confirm that all information is correct
+          default: false
+      required:
+        - acceptTerms
+        - confirmCreate
+
+  steps:
+    - id: log-review-confirmation
+      name: Log Review and Confirmation
+      action: debug:log
+      input:
+        message: |
+          ✔️ REVIEW & CONFIRMATION RESULTS:
+          
+          Project Name: ${{ parameters.projectName }}
+          Description: ${{ parameters.description }}
+          Terms Accepted: ${{ parameters.acceptTerms }}
+          Confirmed: ${{ parameters.confirmCreate }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully confirmed and submitted form
