@@ -1,0 +1,42 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payment-service
+  title: Payment Processing Service
+  description: Handles all payment transactions and integrations with payment providers
+  tags:
+    - java
+    - spring-boot
+    - microservice
+    - payments
+  annotations:
+    github.com/project-slug: myorg/payment-service
+    backstage.io/techdocs-ref: dir:.
+    pagerduty.com/integration-key: abc123def456
+    sonarqube.org/project-key: payment-service
+    grafana/dashboard-selector: payment-service
+    prometheus.io/rule: payment-service-alerts
+  links:
+    - url: https://example.com/payment-service
+      title: Production Environment
+      icon: cloud
+    - url: https://wiki.example.com/payment-service
+      title: Documentation
+      icon: docs
+    - url: https://dashboard.example.com/payment
+      title: Monitoring Dashboard
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: team-payments
+  system: payment-platform
+  dependsOn:
+    - component:default/database-postgres
+    - component:default/message-queue
+    - resource:default/payment-gateway-api
+  providesApis:
+    - payment-api-v1
+  consumesApis:
+    - fraud-detection-api
+    - notification-api
