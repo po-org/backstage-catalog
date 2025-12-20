@@ -1,0 +1,42 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: simple-oauth-debug
+  title: Simple OAuth Debug
+  description: Minimal template to test OAuth token
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Authenticate with GitHub
+      properties:
+        repoUrl:
+          title: Select Any GitHub Repository
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+
+  steps:
+    - id: log-token
+      name: Log Token Information
+      action: debug:log
+      input:
+        message: |
+          🎉 OAuth Token Acquired!
+          
+          Token exists: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
+          Token length: ${{ secrets.USER_OAUTH_TOKEN.length }}
+          First 20 chars: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 20) }}
+          
+          User: ${{ user.entity.metadata.name }}
+          Email: ${{ user.entity.spec.profile.email }}
+
+  output:
+    text:
+      - title: Success!
+        content: OAuth token was successfully retrieved and logged to console
