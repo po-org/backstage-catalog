@@ -351,6 +351,17 @@ spec:
             catalogFilter:
               kind: Component
             multiple: true
+
+        componentDependencies:
+          title: Dependencies
+          type: array
+          description: Select multiple entities as dependencies
+          items:
+            type: string
+          ui:field: MultiEntityPicker  # Use MultiEntityPicker for multiple selection
+          ui:options:
+            catalogFilter:
+              kind: Component
             
   #   # ========================================
   #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
