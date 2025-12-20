@@ -293,396 +293,396 @@ spec:
           ui:options:
             orderable: true
 
-    # ========================================
-    # PAGE 5: BACKSTAGE-SPECIFIC PICKERS
-    # ========================================
-    - title: Backstage Entity Pickers
-      description: Special Backstage pickers for users, groups, and entities
-      properties:
-        # Owner picker (users and groups)
-        owner:
-          title: Owner
-          type: string
-          description: Select an owner from catalog
-          ui:field: OwnerPicker
-          ui:options:
-            catalogFilter:
-              - kind: User
-              - kind: Group
+  #   # ========================================
+  #   # PAGE 5: BACKSTAGE-SPECIFIC PICKERS
+  #   # ========================================
+  #   - title: Backstage Entity Pickers
+  #     description: Special Backstage pickers for users, groups, and entities
+  #     properties:
+  #       # Owner picker (users and groups)
+  #       owner:
+  #         title: Owner
+  #         type: string
+  #         description: Select an owner from catalog
+  #         ui:field: OwnerPicker
+  #         ui:options:
+  #           catalogFilter:
+  #             - kind: User
+  #             - kind: Group
 
-        # Entity picker (any catalog entity)
-        relatedEntity:
-          title: Related Entity
-          type: string
-          description: Pick any entity from the catalog
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: Component
-            defaultKind: Component
+  #       # Entity picker (any catalog entity)
+  #       relatedEntity:
+  #         title: Related Entity
+  #         type: string
+  #         description: Pick any entity from the catalog
+  #         ui:field: EntityPicker
+  #         ui:options:
+  #           catalogFilter:
+  #             kind: Component
+  #           defaultKind: Component
         
-        # Repo URL picker
-        repoUrl:
-          title: Repository Location
-          type: string
-          description: Choose a repository location
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-              - gitlab.com
+  #       # Repo URL picker
+  #       repoUrl:
+  #         title: Repository Location
+  #         type: string
+  #         description: Choose a repository location
+  #         ui:field: RepoUrlPicker
+  #         ui:options:
+  #           allowedHosts:
+  #             - github.com
+  #             - gitlab.com
         
-        # Entity name picker (validates against catalog naming)
-        entityName:
-          title: Entity Name
-          type: string
-          description: Name for the catalog entity
-          ui:field: EntityNamePicker
+  #       # Entity name picker (validates against catalog naming)
+  #       entityName:
+  #         title: Entity Name
+  #         type: string
+  #         description: Name for the catalog entity
+  #         ui:field: EntityNamePicker
         
-        # Multi-entity picker
-        componentDependencies:  # Changed from 'dependencies'
-          title: Dependencies
-          type: array
-          description: Select multiple entities as dependencies
-          items:
-            type: string
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: Component
-            multiple: true
+  #       # Multi-entity picker
+  #       componentDependencies:  # Changed from 'dependencies'
+  #         title: Dependencies
+  #         type: array
+  #         description: Select multiple entities as dependencies
+  #         items:
+  #           type: string
+  #         ui:field: EntityPicker
+  #         ui:options:
+  #           catalogFilter:
+  #             kind: Component
+  #           multiple: true
             
-    # ========================================
-    # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
-    # ========================================
-    - title: Conditional & Dynamic Fields
-      description: Fields that show/hide based on other selections
-      properties:
-        # Main selection that controls visibility
-        deploymentType:
-          title: Deployment Type
-          type: string
-          description: Select deployment method
-          enum:
-            - kubernetes
-            - docker
-            - vm
-            - serverless
-          enumNames:
-            - 'Kubernetes'
-            - 'Docker Container'
-            - 'Virtual Machine'
-            - 'Serverless Function'
-          default: kubernetes
+  #   # ========================================
+  #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
+  #   # ========================================
+  #   - title: Conditional & Dynamic Fields
+  #     description: Fields that show/hide based on other selections
+  #     properties:
+  #       # Main selection that controls visibility
+  #       deploymentType:
+  #         title: Deployment Type
+  #         type: string
+  #         description: Select deployment method
+  #         enum:
+  #           - kubernetes
+  #           - docker
+  #           - vm
+  #           - serverless
+  #         enumNames:
+  #           - 'Kubernetes'
+  #           - 'Docker Container'
+  #           - 'Virtual Machine'
+  #           - 'Serverless Function'
+  #         default: kubernetes
         
-        # Conditional field 1 (shows when kubernetes selected)
-        kubernetesNamespace:
-          title: Kubernetes Namespace
-          type: string
-          description: K8s namespace for deployment
-          default: default
-          ui:help: 'Only visible when Kubernetes is selected'
+  #       # Conditional field 1 (shows when kubernetes selected)
+  #       kubernetesNamespace:
+  #         title: Kubernetes Namespace
+  #         type: string
+  #         description: K8s namespace for deployment
+  #         default: default
+  #         ui:help: 'Only visible when Kubernetes is selected'
         
-        # Conditional field 2 (shows when docker selected)
-        dockerRegistry:
-          title: Docker Registry
-          type: string
-          description: Container registry URL
-          default: "docker.io"
-          ui:help: 'Only visible when Docker is selected'
+  #       # Conditional field 2 (shows when docker selected)
+  #       dockerRegistry:
+  #         title: Docker Registry
+  #         type: string
+  #         description: Container registry URL
+  #         default: "docker.io"
+  #         ui:help: 'Only visible when Docker is selected'
         
-        # Use dependencies to control visibility
-        enableAdvanced:
-          title: Enable Advanced Options
-          type: boolean
-          description: Show additional advanced configuration
-          default: false
+  #       # Use dependencies to control visibility
+  #       enableAdvanced:
+  #         title: Enable Advanced Options
+  #         type: boolean
+  #         description: Show additional advanced configuration
+  #         default: false
         
-        advancedConfig:
-          title: Advanced Configuration
-          type: object
-          description: Advanced settings (only shown if enabled above)
-          properties:
-            customDomain:
-              type: string
-              title: Custom Domain
-            replicas:
-              type: integer
-              title: Number of Replicas
-              default: 3
-            resources:
-              type: object
-              title: Resource Limits
-              properties:
-                cpu:
-                  type: string
-                  title: CPU Limit
-                  default: "500m"
-                memory:
-                  type: string
-                  title: Memory Limit
-                  default: "512Mi"
-          dependencies:
-            # This object only shows when enableAdvanced is true
-            enableAdvanced:
-              oneOf:
-                - properties:
-                    enableAdvanced:
-                      const: true
+  #       advancedConfig:
+  #         title: Advanced Configuration
+  #         type: object
+  #         description: Advanced settings (only shown if enabled above)
+  #         properties:
+  #           customDomain:
+  #             type: string
+  #             title: Custom Domain
+  #           replicas:
+  #             type: integer
+  #             title: Number of Replicas
+  #             default: 3
+  #           resources:
+  #             type: object
+  #             title: Resource Limits
+  #             properties:
+  #               cpu:
+  #                 type: string
+  #                 title: CPU Limit
+  #                 default: "500m"
+  #               memory:
+  #                 type: string
+  #                 title: Memory Limit
+  #                 default: "512Mi"
+  #         dependencies:
+  #           # This object only shows when enableAdvanced is true
+  #           enableAdvanced:
+  #             oneOf:
+  #               - properties:
+  #                   enableAdvanced:
+  #                     const: true
 
-    # ========================================
-    # PAGE 7: VALIDATION & PATTERNS
-    # ========================================
-    - title: Validation & Custom Patterns
-      description: Advanced validation rules and patterns
-      properties:
-        # Pattern validation (alphanumeric + hyphens)
-        resourceName:
-          title: Resource Name
-          type: string
-          description: Must be lowercase alphanumeric with hyphens
-          pattern: '^[a-z0-9-]+$'
-          minLength: 3
-          maxLength: 63
-          ui:help: 'Example: my-resource-name'
+  #   # ========================================
+  #   # PAGE 7: VALIDATION & PATTERNS
+  #   # ========================================
+  #   - title: Validation & Custom Patterns
+  #     description: Advanced validation rules and patterns
+  #     properties:
+  #       # Pattern validation (alphanumeric + hyphens)
+  #       resourceName:
+  #         title: Resource Name
+  #         type: string
+  #         description: Must be lowercase alphanumeric with hyphens
+  #         pattern: '^[a-z0-9-]+$'
+  #         minLength: 3
+  #         maxLength: 63
+  #         ui:help: 'Example: my-resource-name'
         
-        # Semantic version
-        version:
-          title: Version Number
-          type: string
-          description: Semantic version (e.g., 1.0.0)
-          pattern: '^\d+\.\d+\.\d+$'
-          default: "1.0.0"
-          ui:help: 'Must follow semantic versioning: major.minor.patch'
+  #       # Semantic version
+  #       version:
+  #         title: Version Number
+  #         type: string
+  #         description: Semantic version (e.g., 1.0.0)
+  #         pattern: '^\d+\.\d+\.\d+$'
+  #         default: "1.0.0"
+  #         ui:help: 'Must follow semantic versioning: major.minor.patch'
         
-        # GitHub username pattern
-        githubUsername:
-          title: GitHub Username
-          type: string
-          description: Valid GitHub username
-          pattern: '^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$'
-          ui:help: 'Must be a valid GitHub username format'
+  #       # GitHub username pattern
+  #       githubUsername:
+  #         title: GitHub Username
+  #         type: string
+  #         description: Valid GitHub username
+  #         pattern: '^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$'
+  #         ui:help: 'Must be a valid GitHub username format'
         
-        # Port number
-        portNumber:
-          title: Port Number
-          type: integer
-          description: Valid port number
-          minimum: 1024
-          maximum: 65535
-          default: 8080
-          ui:help: 'Must be between 1024 and 65535'
+  #       # Port number
+  #       portNumber:
+  #         title: Port Number
+  #         type: integer
+  #         description: Valid port number
+  #         minimum: 1024
+  #         maximum: 65535
+  #         default: 8080
+  #         ui:help: 'Must be between 1024 and 65535'
         
-        # Kubernetes label format
-        kubernetesLabel:
-          title: Kubernetes Label
-          type: string
-          description: Valid k8s label (key=value)
-          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
-          maxLength: 63
-          ui:help: 'Must follow Kubernetes label naming rules'
+  #       # Kubernetes label format
+  #       kubernetesLabel:
+  #         title: Kubernetes Label
+  #         type: string
+  #         description: Valid k8s label (key=value)
+  #         pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
+  #         maxLength: 63
+  #         ui:help: 'Must follow Kubernetes label naming rules'
 
-    # ========================================
-    # PAGE 8: UI OPTIONS & CUSTOMIZATION
-    # ========================================
-    - title: UI Customization Options
-      description: Various UI widgets and display options
-      properties:
-        # Color picker
-        themeColor:
-          title: Theme Color
-          type: string
-          description: Pick a color for your theme
-          default: "#3B82F6"
-          ui:widget: color
+  #   # ========================================
+  #   # PAGE 8: UI OPTIONS & CUSTOMIZATION
+  #   # ========================================
+  #   - title: UI Customization Options
+  #     description: Various UI widgets and display options
+  #     properties:
+  #       # Color picker
+  #       themeColor:
+  #         title: Theme Color
+  #         type: string
+  #         description: Pick a color for your theme
+  #         default: "#3B82F6"
+  #         ui:widget: color
         
-        # File upload (base64)
-        uploadedFile:
-          title: Upload File
-          type: string
-          description: Upload a file (will be base64 encoded)
-          ui:widget: file
-          ui:help: 'File will be encoded as base64'
+  #       # File upload (base64)
+  #       uploadedFile:
+  #         title: Upload File
+  #         type: string
+  #         description: Upload a file (will be base64 encoded)
+  #         ui:widget: file
+  #         ui:help: 'File will be encoded as base64'
         
-        # Readonly field (displays but cannot edit)
-        generatedId:
-          title: Generated ID
-          type: string
-          description: Auto-generated identifier
-          default: "auto-generated-id-12345"
-          ui:readonly: true
-          ui:help: 'This field is read-only'
+  #       # Readonly field (displays but cannot edit)
+  #       generatedId:
+  #         title: Generated ID
+  #         type: string
+  #         description: Auto-generated identifier
+  #         default: "auto-generated-id-12345"
+  #         ui:readonly: true
+  #         ui:help: 'This field is read-only'
         
-        # Field with placeholder
-        withPlaceholder:
-          title: Field with Placeholder
-          type: string
-          description: Shows placeholder text
-          ui:placeholder: 'Enter value here...'
+  #       # Field with placeholder
+  #       withPlaceholder:
+  #         title: Field with Placeholder
+  #         type: string
+  #         description: Shows placeholder text
+  #         ui:placeholder: 'Enter value here...'
         
-        # Alternative layout (side-by-side)
-        firstName:
-          title: First Name
-          type: string
-          ui:column: 6
+  #       # Alternative layout (side-by-side)
+  #       firstName:
+  #         title: First Name
+  #         type: string
+  #         ui:column: 6
         
-        lastName:
-          title: Last Name
-          type: string
-          ui:column: 6
+  #       lastName:
+  #         title: Last Name
+  #         type: string
+  #         ui:column: 6
         
-        # Field with custom help link
-        apiKey:
-          title: API Key
-          type: string
-          description: Your API key for external service
-          ui:help: 'Get your API key from the dashboard'
-          ui:helpLink: https://docs.example.com/api-keys
+  #       # Field with custom help link
+  #       apiKey:
+  #         title: API Key
+  #         type: string
+  #         description: Your API key for external service
+  #         ui:help: 'Get your API key from the dashboard'
+  #         ui:helpLink: https://docs.example.com/api-keys
 
-    # ========================================
-    # PAGE 9: REFERENCE & LOOKUP FIELDS
-    # ========================================
-    - title: Reference & Lookup Fields
-      description: Fields that reference other data sources
-      properties:
-        # Fetch values from external API
-        cloudRegion:
-          title: Cloud Region
-          type: string
-          description: Select cloud provider region
-          enum:
-            - us-east-1
-            - us-west-2
-            - eu-west-1
-            - ap-southeast-1
-          enumNames:
-            - 'US East (N. Virginia)'
-            - 'US West (Oregon)'
-            - 'EU West (Ireland)'
-            - 'Asia Pacific (Singapore)'
-          default: us-east-1
+  #   # ========================================
+  #   # PAGE 9: REFERENCE & LOOKUP FIELDS
+  #   # ========================================
+  #   - title: Reference & Lookup Fields
+  #     description: Fields that reference other data sources
+  #     properties:
+  #       # Fetch values from external API
+  #       cloudRegion:
+  #         title: Cloud Region
+  #         type: string
+  #         description: Select cloud provider region
+  #         enum:
+  #           - us-east-1
+  #           - us-west-2
+  #           - eu-west-1
+  #           - ap-southeast-1
+  #         enumNames:
+  #           - 'US East (N. Virginia)'
+  #           - 'US West (Oregon)'
+  #           - 'EU West (Ireland)'
+  #           - 'Asia Pacific (Singapore)'
+  #         default: us-east-1
         
-        # Reference to catalog entity by name
-        componentRef:
-          title: Component Reference
-          type: string
-          description: Reference to another component
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: Component
+  #       # Reference to catalog entity by name
+  #       componentRef:
+  #         title: Component Reference
+  #         type: string
+  #         description: Reference to another component
+  #         ui:field: EntityPicker
+  #         ui:options:
+  #           catalogFilter:
+  #             kind: Component
         
-        # Group membership picker
-        teamGroup:
-          title: Team/Group
-          type: string
-          description: Select a team or group
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: Group
-            defaultKind: Group
+  #       # Group membership picker
+  #       teamGroup:
+  #         title: Team/Group
+  #         type: string
+  #         description: Select a team or group
+  #         ui:field: EntityPicker
+  #         ui:options:
+  #           catalogFilter:
+  #             kind: Group
+  #           defaultKind: Group
 
-    # ========================================
-    # PAGE 10: REVIEW & SUBMISSION
-    # ========================================
-    - title: Review & Confirm
-      description: Review your selections before proceeding
-      properties:
-        # Terms acceptance
-        acceptTerms:
-          title: Accept Terms & Conditions
-          type: boolean
-          description: I have read and accept the terms
-          ui:widget: checkbox
+  #   # ========================================
+  #   # PAGE 10: REVIEW & SUBMISSION
+  #   # ========================================
+  #   - title: Review & Confirm
+  #     description: Review your selections before proceeding
+  #     properties:
+  #       # Terms acceptance
+  #       acceptTerms:
+  #         title: Accept Terms & Conditions
+  #         type: boolean
+  #         description: I have read and accept the terms
+  #         ui:widget: checkbox
         
-        # Final confirmation
-        confirmCreate:
-          title: Confirm Creation
-          type: boolean
-          description: I confirm that all information is correct
-          default: false
-      required:
-        - acceptTerms
-        - confirmCreate
+  #       # Final confirmation
+  #       confirmCreate:
+  #         title: Confirm Creation
+  #         type: boolean
+  #         description: I confirm that all information is correct
+  #         default: false
+  #     required:
+  #       - acceptTerms
+  #       - confirmCreate
 
-  # ========================================
-  # STEPS - Demonstrate parameter usage
-  # ========================================
-  steps:
-    - id: log_all_parameters
-      name: Log All Form Parameters
-      action: debug:log
-      input:
-        message: |
-          📋 FORM SUBMISSION SUMMARY
+  # # ========================================
+  # # STEPS - Demonstrate parameter usage
+  # # ========================================
+  # steps:
+  #   - id: log_all_parameters
+  #     name: Log All Form Parameters
+  #     action: debug:log
+  #     input:
+  #       message: |
+  #         📋 FORM SUBMISSION SUMMARY
           
-          === Text Inputs ===
-          Basic Text: ${{ parameters.basicText }}
-          Email: ${{ parameters.email }}
-          Website: ${{ parameters.websiteUrl }}
-          Long Description: ${{ parameters.longDescription }}
+  #         === Text Inputs ===
+  #         Basic Text: ${{ parameters.basicText }}
+  #         Email: ${{ parameters.email }}
+  #         Website: ${{ parameters.websiteUrl }}
+  #         Long Description: ${{ parameters.longDescription }}
           
-          === Selections ===
-          Dropdown: ${{ parameters.simpleDropdown }}
-          Radio: ${{ parameters.radioSelection }}
-          Feature Enabled: ${{ parameters.enableFeature }}
-          Multiple Features: ${{ parameters.multipleFeatures }}
+  #         === Selections ===
+  #         Dropdown: ${{ parameters.simpleDropdown }}
+  #         Radio: ${{ parameters.radioSelection }}
+  #         Feature Enabled: ${{ parameters.enableFeature }}
+  #         Multiple Features: ${{ parameters.multipleFeatures }}
           
-          === Numbers & Dates ===
-          Integer: ${{ parameters.integerValue }}
-          Decimal: ${{ parameters.decimalValue }}
-          Slider: ${{ parameters.sliderValue }}
-          Start Date: ${{ parameters.startDate }}
+  #         === Numbers & Dates ===
+  #         Integer: ${{ parameters.integerValue }}
+  #         Decimal: ${{ parameters.decimalValue }}
+  #         Slider: ${{ parameters.sliderValue }}
+  #         Start Date: ${{ parameters.startDate }}
           
-          === Arrays ===
-          Tags: ${{ parameters.tagsList }}
-          Team Members: ${{ parameters.teamMembers | dump(2) }}
+  #         === Arrays ===
+  #         Tags: ${{ parameters.tagsList }}
+  #         Team Members: ${{ parameters.teamMembers | dump(2) }}
           
-          === Backstage Pickers ===
-          Owner: ${{ parameters.owner }}
-          Related Entity: ${{ parameters.relatedEntity }}
-          Repository: ${{ parameters.repoUrl }}
+  #         === Backstage Pickers ===
+  #         Owner: ${{ parameters.owner }}
+  #         Related Entity: ${{ parameters.relatedEntity }}
+  #         Repository: ${{ parameters.repoUrl }}
           
-          === Deployment ===
-          Type: ${{ parameters.deploymentType }}
-          Advanced Enabled: ${{ parameters.enableAdvanced }}
+  #         === Deployment ===
+  #         Type: ${{ parameters.deploymentType }}
+  #         Advanced Enabled: ${{ parameters.enableAdvanced }}
           
-          === Validation ===
-          Resource Name: ${{ parameters.resourceName }}
-          Version: ${{ parameters.version }}
-          Port: ${{ parameters.portNumber }}
+  #         === Validation ===
+  #         Resource Name: ${{ parameters.resourceName }}
+  #         Version: ${{ parameters.version }}
+  #         Port: ${{ parameters.portNumber }}
           
-          === UI Options ===
-          Theme Color: ${{ parameters.themeColor }}
-          Generated ID: ${{ parameters.generatedId }}
+  #         === UI Options ===
+  #         Theme Color: ${{ parameters.themeColor }}
+  #         Generated ID: ${{ parameters.generatedId }}
           
-          === Confirmation ===
-          Terms Accepted: ${{ parameters.acceptTerms }}
-          Confirmed: ${{ parameters.confirmCreate }}
+  #         === Confirmation ===
+  #         Terms Accepted: ${{ parameters.acceptTerms }}
+  #         Confirmed: ${{ parameters.confirmCreate }}
     
-    - id: log_json_dump
-      name: Log Full JSON
-      action: debug:log
-      input:
-        message: |
-          🔍 FULL PARAMETERS JSON:
-          ${{ parameters | dump(2) }}
+  #   - id: log_json_dump
+  #     name: Log Full JSON
+  #     action: debug:log
+  #     input:
+  #       message: |
+  #         🔍 FULL PARAMETERS JSON:
+  #         ${{ parameters | dump(2) }}
 
-  # ========================================
-  # OUTPUT - Show results after completion
-  # ========================================
-  output:
-    links:
-      - title: View Documentation
-        url: https://backstage.io/docs/features/software-templates/writing-templates
-      - title: Form Data Summary
-        icon: catalog
-    text:
-      - title: Submitted Values
-        content: |
-          Successfully processed form with ${{ parameters | length }} parameters
-      - title: Owner
-        content: ${{ parameters.owner }}
-      - title: Resource Name
-        content: ${{ parameters.resourceName }}
+  # # ========================================
+  # # OUTPUT - Show results after completion
+  # # ========================================
+  # output:
+  #   links:
+  #     - title: View Documentation
+  #       url: https://backstage.io/docs/features/software-templates/writing-templates
+  #     - title: Form Data Summary
+  #       icon: catalog
+  #   text:
+  #     - title: Submitted Values
+  #       content: |
+  #         Successfully processed form with ${{ parameters | length }} parameters
+  #     - title: Owner
+  #       content: ${{ parameters.owner }}
+  #     - title: Resource Name
+  #       content: ${{ parameters.resourceName }}
