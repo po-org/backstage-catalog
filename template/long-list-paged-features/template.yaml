@@ -355,70 +355,70 @@ spec:
   #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
   #   # ========================================
     - title: Conditional & Dynamic Fields
-          description: Fields that show/hide based on other selections
-          properties:
-            deploymentType:
-              title: Deployment Type
-              type: string
-              description: Select deployment method
-              enum:
-                - kubernetes
-                - docker
-                - vm
-                - serverless
-              enumNames:
-                - 'Kubernetes'
-                - 'Docker Container'
-                - 'Virtual Machine'
-                - 'Serverless Function'
-              default: kubernetes
-            
-            kubernetesNamespace:
-              title: Kubernetes Namespace
-              type: string
-              description: K8s namespace for deployment
-              default: default
-            
-            dockerRegistry:
-              title: Docker Registry
-              type: string
-              description: Container registry URL
-              default: "docker.io"
-            
-            vmImage:
-              title: VM Image
-              type: string
-              description: Virtual machine image name
-            
-            functionRuntime:
-              title: Function Runtime
-              type: string
-              description: Serverless runtime environment
-            
-            enableAdvanced:
-              title: Enable Advanced Options
-              type: boolean
-              description: Show additional advanced configuration
-              default: false
-            
-            customDomain:
-              type: string
-              title: Custom Domain
-            
-            replicas:
-              type: integer
-              title: Number of Replicas
-              default: 3
-            
-            cpuLimit:
-              type: string
-              title: CPU Limit
-              default: "500m"
-            
-            memoryLimit:
-              type: string
-              title: Memory Limit
-              default: "512Mi"
+      description: Fields that show/hide based on other selections
+      properties:
+        deploymentType:
+          title: Deployment Type
+          type: string
+          description: Select deployment method
+          enum:
+            - kubernetes
+            - docker
+            - vm
+            - serverless
+          enumNames:
+            - 'Kubernetes'
+            - 'Docker Container'
+            - 'Virtual Machine'
+            - 'Serverless Function'
+          default: kubernetes
+        
+        kubernetesNamespace:
+          title: Kubernetes Namespace
+          type: string
+          description: K8s namespace for deployment
+          default: default
+        
+        dockerRegistry:
+          title: Docker Registry
+          type: string
+          description: Container registry URL
+          default: "docker.io"
+        
+        vmImage:
+          title: VM Image
+          type: string
+          description: Virtual machine image name
+        
+        functionRuntime:
+          title: Function Runtime
+          type: string
+          description: Serverless runtime environment
+        
+        enableAdvanced:
+          title: Enable Advanced Options
+          type: boolean
+          description: Show additional advanced configuration
+          default: false
+        
+        customDomain:
+          type: string
+          title: Custom Domain
+        
+        replicas:
+          type: integer
+          title: Number of Replicas
+          default: 3
+        
+        cpuLimit:
+          type: string
+          title: CPU Limit
+          default: "500m"
+        
+        memoryLimit:
+          type: string
+          title: Memory Limit
+          default: "512Mi"
 
   #   # ========================================
   #   # PAGE 7: VALIDATION & PATTERNS
