@@ -390,6 +390,24 @@ spec:
           default: "docker.io"
           ui:help: 'Only visible when Docker is selected'
         
+        # Conditional field 3 (shows when vm selected)
+        vmImage:
+          title: VM Image
+          type: string
+          description: Virtual machine image name
+          ui:help: 'Only visible when Virtual Machine is selected'
+        
+        # Conditional field 4 (shows when serverless selected)
+        functionRuntime:
+          title: Function Runtime
+          type: string
+          description: Serverless runtime environment
+          enum:
+            - nodejs18
+            - python39
+            - java11
+          ui:help: 'Only visible when Serverless is selected'
+        
         # Use dependencies to control visibility
         enableAdvanced:
           title: Enable Advanced Options
@@ -421,36 +439,55 @@ spec:
           default: "512Mi"
           ui:help: 'Only visible when Advanced Options enabled'
       
-      # Dependencies go at the same level as properties
-      dependencies:
-        # Show/hide based on deploymentType
-        deploymentType:
-          oneOf:
-            - properties:
-                deploymentType:
-                  enum:
-                    - kubernetes
-              required:
-                - kubernetesNamespace
-            - properties:
-                deploymentType:
-                  enum:
-                    - docker
-              required:
-                - dockerRegistry
+      # Use allOf with if/then to control field visibility
+      allOf:
+        # Show kubernetesNamespace only when deploymentType is kubernetes
+        - if:
+            properties:
+              deploymentType:
+                const: kubernetes
+          then:
+            required:
+              - kubernetesNamespace
         
-        # Show/hide advanced fields based on enableAdvanced
-        enableAdvanced:
-          oneOf:
-            - properties:
-                enableAdvanced:
-                  enum:
-                    - true
-              required:
-                - customDomain
-                - replicas
-                - cpuLimit
-                - memoryLimit
+        # Show dockerRegistry only when deploymentType is docker
+        - if:
+            properties:
+              deploymentType:
+                const: docker
+          then:
+            required:
+              - dockerRegistry
+        
+        # Show vmImage only when deploymentType is vm
+        - if:
+            properties:
+              deploymentType:
+                const: vm
+          then:
+            required:
+              - vmImage
+        
+        # Show functionRuntime only when deploymentType is serverless
+        - if:
+            properties:
+              deploymentType:
+                const: serverless
+          then:
+            required:
+              - functionRuntime
+        
+        # Show advanced fields only when enableAdvanced is true
+        - if:
+            properties:
+              enableAdvanced:
+                const: true
+          then:
+            required:
+              - customDomain
+              - replicas
+              - cpuLimit
+              - memoryLimit
 
     # ========================================
     # PAGE 7: VALIDATION & PATTERNS
