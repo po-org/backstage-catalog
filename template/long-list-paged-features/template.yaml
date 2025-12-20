@@ -296,30 +296,30 @@ spec:
   #   # ========================================
   #   # PAGE 5: BACKSTAGE-SPECIFIC PICKERS
   #   # ========================================
-  #   - title: Backstage Entity Pickers
-  #     description: Special Backstage pickers for users, groups, and entities
-  #     properties:
-  #       # Owner picker (users and groups)
-  #       owner:
-  #         title: Owner
-  #         type: string
-  #         description: Select an owner from catalog
-  #         ui:field: OwnerPicker
-  #         ui:options:
-  #           catalogFilter:
-  #             - kind: User
-  #             - kind: Group
+    - title: Backstage Entity Pickers
+      description: Special Backstage pickers for users, groups, and entities
+      properties:
+        # Owner picker (users and groups)
+        owner:
+          title: Owner
+          type: string
+          description: Select an owner from catalog
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              - kind: User
+              - kind: Group
 
-  #       # Entity picker (any catalog entity)
-  #       relatedEntity:
-  #         title: Related Entity
-  #         type: string
-  #         description: Pick any entity from the catalog
-  #         ui:field: EntityPicker
-  #         ui:options:
-  #           catalogFilter:
-  #             kind: Component
-  #           defaultKind: Component
+        # Entity picker (any catalog entity)
+        relatedEntity:
+          title: Related Entity
+          type: string
+          description: Pick any entity from the catalog
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+            defaultKind: Component
         
   #       # Repo URL picker
   #       repoUrl:
