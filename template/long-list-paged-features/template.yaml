@@ -351,9 +351,9 @@ spec:
             catalogFilter:
               kind: Component
             
-  #   # ========================================
-  #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
-  #   # ========================================
+#   # ========================================
+#   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
+#   # ========================================
     - title: Conditional & Dynamic Fields
       description: Fields that show/hide based on other selections
       properties:
@@ -397,37 +397,60 @@ spec:
           description: Show additional advanced configuration
           default: false
         
-        advancedConfig:
-          title: Advanced Configuration
-          type: object
-          description: Advanced settings (only shown if enabled above)
-          properties:
-            customDomain:
-              type: string
-              title: Custom Domain
-            replicas:
-              type: integer
-              title: Number of Replicas
-              default: 3
-            resources:
-              type: object
-              title: Resource Limits
-              properties:
-                cpu:
-                  type: string
-                  title: CPU Limit
-                  default: "500m"
-                memory:
-                  type: string
-                  title: Memory Limit
-                  default: "512Mi"
-          dependencies:
-            # This object only shows when enableAdvanced is true
-            enableAdvanced:
-              oneOf:
-                - properties:
-                    enableAdvanced:
-                      const: true
+        # Advanced config fields (will be shown/hidden based on enableAdvanced)
+        customDomain:
+          type: string
+          title: Custom Domain
+          ui:help: 'Only visible when Advanced Options enabled'
+        
+        replicas:
+          type: integer
+          title: Number of Replicas
+          default: 3
+          ui:help: 'Only visible when Advanced Options enabled'
+        
+        cpuLimit:
+          type: string
+          title: CPU Limit
+          default: "500m"
+          ui:help: 'Only visible when Advanced Options enabled'
+        
+        memoryLimit:
+          type: string
+          title: Memory Limit
+          default: "512Mi"
+          ui:help: 'Only visible when Advanced Options enabled'
+      
+      # Dependencies go at the same level as properties
+      dependencies:
+        # Show/hide based on deploymentType
+        deploymentType:
+          oneOf:
+            - properties:
+                deploymentType:
+                  enum:
+                    - kubernetes
+              required:
+                - kubernetesNamespace
+            - properties:
+                deploymentType:
+                  enum:
+                    - docker
+              required:
+                - dockerRegistry
+        
+        # Show/hide advanced fields based on enableAdvanced
+        enableAdvanced:
+          oneOf:
+            - properties:
+                enableAdvanced:
+                  enum:
+                    - true
+              required:
+                - customDomain
+                - replicas
+                - cpuLimit
+                - memoryLimit
 
     # ========================================
     # PAGE 7: VALIDATION & PATTERNS
