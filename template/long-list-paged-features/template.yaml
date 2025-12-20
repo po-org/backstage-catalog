@@ -372,94 +372,199 @@ spec:
             - 'Serverless Function'
           default: kubernetes
     
-    # Kubernetes-specific page
+    # ========================================
+    # Kubernetes Configuration (conditional)
+    # ========================================
     - title: Kubernetes Configuration
+      description: Configure Kubernetes deployment settings
       properties:
         kubernetesNamespace:
           title: Kubernetes Namespace
           type: string
           description: K8s namespace for deployment
           default: default
+        
+        kubernetesReplicas:
+          title: Number of Replicas
+          type: integer
+          description: Number of pod replicas
+          default: 3
+          minimum: 1
+          maximum: 10
+      
+      # This makes the page only show when deploymentType is kubernetes
       dependencies:
-        deploymentType:
-          allOf:
-            - if:
-                properties:
-                  deploymentType:
-                    const: kubernetes
-              then:
-                required:
-                  - kubernetesNamespace
+        $ref: '#/parameters/0/properties/deploymentType'
+      
+      allOf:
+        - if:
+            properties:
+              deploymentType:
+                const: kubernetes
+          then:
+            properties:
+              kubernetesNamespace: {}
+              kubernetesReplicas: {}
     
-    # Docker-specific page
+    # ========================================
+    # Docker Configuration (conditional)
+    # ========================================
     - title: Docker Configuration
+      description: Configure Docker container settings
       properties:
         dockerRegistry:
           title: Docker Registry
           type: string
           description: Container registry URL
           default: "docker.io"
-      dependencies:
-        deploymentType:
-          allOf:
-            - if:
-                properties:
-                  deploymentType:
-                    const: docker
-              then:
-                required:
-                  - dockerRegistry
+        
+        dockerTag:
+          title: Image Tag
+          type: string
+          description: Docker image tag
+          default: latest
+      
+      allOf:
+        - if:
+            properties:
+              deploymentType:
+                const: docker
+          then:
+            properties:
+              dockerRegistry: {}
+              dockerTag: {}
+    
     # ========================================
-    # PAGE 7: VALIDATION & PATTERNS
+    # VM Configuration (conditional)
     # ========================================
-    - title: Validation & Custom Patterns
-      description: Advanced validation rules and patterns
+    - title: VM Configuration
+      description: Configure Virtual Machine settings
       properties:
-        # Pattern validation (alphanumeric + hyphens)
-        resourceName:
-          title: Resource Name
+        vmImage:
+          title: VM Image
           type: string
-          description: Must be lowercase alphanumeric with hyphens
-          pattern: '^[a-z0-9-]+$'
-          minLength: 3
-          maxLength: 63
-          ui:help: 'Example: my-resource-name'
+          description: Virtual machine image name
+          enum:
+            - ubuntu-20.04
+            - ubuntu-22.04
+            - centos-8
+            - rhel-8
+          default: ubuntu-22.04
         
-        # Semantic version
-        version:
-          title: Version Number
+        vmSize:
+          title: VM Size
           type: string
-          description: Semantic version (e.g., 1.0.0)
-          pattern: '^\d+\.\d+\.\d+$'
-          default: "1.0.0"
-          ui:help: 'Must follow semantic versioning: major.minor.patch'
-        
-        # GitHub username pattern
-        githubUsername:
-          title: GitHub Username
+          description: Virtual machine size
+          enum:
+            - small
+            - medium
+            - large
+          enumNames:
+            - 'Small (2 CPU, 4GB RAM)'
+            - 'Medium (4 CPU, 8GB RAM)'
+            - 'Large (8 CPU, 16GB RAM)'
+          default: medium
+      
+      allOf:
+        - if:
+            properties:
+              deploymentType:
+                const: vm
+          then:
+            properties:
+              vmImage: {}
+              vmSize: {}
+    
+    # ========================================
+    # Serverless Configuration (conditional)
+    # ========================================
+    - title: Serverless Configuration
+      description: Configure Serverless function settings
+      properties:
+        functionRuntime:
+          title: Function Runtime
           type: string
-          description: Valid GitHub username
-          pattern: '^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$'
-          ui:help: 'Must be a valid GitHub username format'
+          description: Serverless runtime environment
+          enum:
+            - nodejs18
+            - nodejs20
+            - python39
+            - python311
+            - java11
+            - java17
+          enumNames:
+            - 'Node.js 18'
+            - 'Node.js 20'
+            - 'Python 3.9'
+            - 'Python 3.11'
+            - 'Java 11'
+            - 'Java 17'
+          default: nodejs20
         
-        # Port number
-        portNumber:
-          title: Port Number
+        functionMemory:
+          title: Memory Allocation (MB)
           type: integer
-          description: Valid port number
-          minimum: 1024
-          maximum: 65535
-          default: 8080
-          ui:help: 'Must be between 1024 and 65535'
-        
-        # Kubernetes label format
-        kubernetesLabel:
-          title: Kubernetes Label
-          type: string
-          description: Valid k8s label (key=value)
-          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
-          maxLength: 63
-          ui:help: 'Must follow Kubernetes label naming rules'
+          description: Memory allocated to the function
+          enum:
+            - 128
+            - 256
+            - 512
+            - 1024
+            - 2048
+          default: 512
+      
+      allOf:
+        - if:
+            properties:
+              deploymentType:
+                const: serverless
+          then:
+            properties:
+              functionRuntime: {}
+              functionMemory: {}
+    
+    # ========================================
+    # Advanced Options (conditional within page)
+    # ========================================
+    - title: Advanced Options
+      description: Optional advanced configuration
+      properties:
+        enableAdvanced:
+          title: Enable Advanced Configuration
+          type: boolean
+          description: Show additional advanced settings
+          default: false
+      
+      dependencies:
+        enableAdvanced:
+          oneOf:
+            - properties:
+                enableAdvanced:
+                  enum: [false]
+            - properties:
+                enableAdvanced:
+                  enum: [true]
+                customDomain:
+                  type: string
+                  title: Custom Domain
+                  description: Custom domain for the application
+                  pattern: '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$'
+                
+                healthCheckPath:
+                  type: string
+                  title: Health Check Path
+                  description: Endpoint path for health checks
+                  default: /health
+                
+                environmentVariables:
+                  type: object
+                  title: Environment Variables
+                  description: Key-value pairs for environment variables
+                  additionalProperties:
+                    type: string
+              required:
+                - customDomain
+                - healthCheckPath
 
     # ========================================
     # PAGE 8: UI OPTIONS & CUSTOMIZATION
