@@ -606,83 +606,83 @@ spec:
   #       - acceptTerms
   #       - confirmCreate
 
-  # # ========================================
-  # # STEPS - Demonstrate parameter usage
-  # # ========================================
-  # steps:
-  #   - id: log_all_parameters
-  #     name: Log All Form Parameters
-  #     action: debug:log
-  #     input:
-  #       message: |
-  #         📋 FORM SUBMISSION SUMMARY
+  # ========================================
+  # STEPS - Demonstrate parameter usage
+  # ========================================
+  steps:
+    - id: log_all_parameters
+      name: Log All Form Parameters
+      action: debug:log
+      input:
+        message: |
+          📋 FORM SUBMISSION SUMMARY
           
-  #         === Text Inputs ===
-  #         Basic Text: ${{ parameters.basicText }}
-  #         Email: ${{ parameters.email }}
-  #         Website: ${{ parameters.websiteUrl }}
-  #         Long Description: ${{ parameters.longDescription }}
+          === Text Inputs ===
+          Basic Text: ${{ parameters.basicText }}
+          Email: ${{ parameters.email }}
+          Website: ${{ parameters.websiteUrl }}
+          Long Description: ${{ parameters.longDescription }}
           
-  #         === Selections ===
-  #         Dropdown: ${{ parameters.simpleDropdown }}
-  #         Radio: ${{ parameters.radioSelection }}
-  #         Feature Enabled: ${{ parameters.enableFeature }}
-  #         Multiple Features: ${{ parameters.multipleFeatures }}
+          === Selections ===
+          Dropdown: ${{ parameters.simpleDropdown }}
+          Radio: ${{ parameters.radioSelection }}
+          Feature Enabled: ${{ parameters.enableFeature }}
+          Multiple Features: ${{ parameters.multipleFeatures }}
           
-  #         === Numbers & Dates ===
-  #         Integer: ${{ parameters.integerValue }}
-  #         Decimal: ${{ parameters.decimalValue }}
-  #         Slider: ${{ parameters.sliderValue }}
-  #         Start Date: ${{ parameters.startDate }}
+          === Numbers & Dates ===
+          Integer: ${{ parameters.integerValue }}
+          Decimal: ${{ parameters.decimalValue }}
+          Slider: ${{ parameters.sliderValue }}
+          Start Date: ${{ parameters.startDate }}
           
-  #         === Arrays ===
-  #         Tags: ${{ parameters.tagsList }}
-  #         Team Members: ${{ parameters.teamMembers | dump(2) }}
+          === Arrays ===
+          Tags: ${{ parameters.tagsList }}
+          Team Members: ${{ parameters.teamMembers | dump(2) }}
           
-  #         === Backstage Pickers ===
-  #         Owner: ${{ parameters.owner }}
-  #         Related Entity: ${{ parameters.relatedEntity }}
-  #         Repository: ${{ parameters.repoUrl }}
+          === Backstage Pickers ===
+          Owner: ${{ parameters.owner }}
+          Related Entity: ${{ parameters.relatedEntity }}
+          Repository: ${{ parameters.repoUrl }}
           
-  #         === Deployment ===
-  #         Type: ${{ parameters.deploymentType }}
-  #         Advanced Enabled: ${{ parameters.enableAdvanced }}
+          === Deployment ===
+          Type: ${{ parameters.deploymentType }}
+          Advanced Enabled: ${{ parameters.enableAdvanced }}
           
-  #         === Validation ===
-  #         Resource Name: ${{ parameters.resourceName }}
-  #         Version: ${{ parameters.version }}
-  #         Port: ${{ parameters.portNumber }}
+          === Validation ===
+          Resource Name: ${{ parameters.resourceName }}
+          Version: ${{ parameters.version }}
+          Port: ${{ parameters.portNumber }}
           
-  #         === UI Options ===
-  #         Theme Color: ${{ parameters.themeColor }}
-  #         Generated ID: ${{ parameters.generatedId }}
+          === UI Options ===
+          Theme Color: ${{ parameters.themeColor }}
+          Generated ID: ${{ parameters.generatedId }}
           
-  #         === Confirmation ===
-  #         Terms Accepted: ${{ parameters.acceptTerms }}
-  #         Confirmed: ${{ parameters.confirmCreate }}
+          === Confirmation ===
+          Terms Accepted: ${{ parameters.acceptTerms }}
+          Confirmed: ${{ parameters.confirmCreate }}
     
-  #   - id: log_json_dump
-  #     name: Log Full JSON
-  #     action: debug:log
-  #     input:
-  #       message: |
-  #         🔍 FULL PARAMETERS JSON:
-  #         ${{ parameters | dump(2) }}
+    - id: log_json_dump
+      name: Log Full JSON
+      action: debug:log
+      input:
+        message: |
+          🔍 FULL PARAMETERS JSON:
+          ${{ parameters | dump(2) }}
 
-  # # ========================================
-  # # OUTPUT - Show results after completion
-  # # ========================================
-  # output:
-  #   links:
-  #     - title: View Documentation
-  #       url: https://backstage.io/docs/features/software-templates/writing-templates
-  #     - title: Form Data Summary
-  #       icon: catalog
-  #   text:
-  #     - title: Submitted Values
-  #       content: |
-  #         Successfully processed form with ${{ parameters | length }} parameters
-  #     - title: Owner
-  #       content: ${{ parameters.owner }}
-  #     - title: Resource Name
-  #       content: ${{ parameters.resourceName }}
+  # ========================================
+  # OUTPUT - Show results after completion
+  # ========================================
+  output:
+    links:
+      - title: View Documentation
+        url: https://backstage.io/docs/features/software-templates/writing-templates
+      - title: Form Data Summary
+        icon: catalog
+    text:
+      - title: Submitted Values
+        content: |
+          Successfully processed form with ${{ parameters | length }} parameters
+      - title: Owner
+        content: ${{ parameters.owner }}
+      - title: Resource Name
+        content: ${{ parameters.resourceName }}
