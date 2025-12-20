@@ -1,24 +1,26 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: oauth-debug-template
-  title: OAuth Token Debug Template
-  description: Simple template to test user OAuth token authentication
+  name: github-oauth-debug
+  title: GitHub OAuth Debug Template
+  description: Simple template to test GitHub OAuth token authentication
   tags:
     - debug
     - oauth
+    - github
 spec:
-  owner: platform-team
+  owner: user:default/c-nell
   type: service
-
+  
   parameters:
-    - title: Choose a GitHub Repository
+    - title: GitHub Authentication
       required:
         - repoUrl
       properties:
         repoUrl:
-          title: Repository Location
+          title: Select a GitHub Repository
           type: string
+          description: This will trigger OAuth authentication
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts:
@@ -30,54 +32,138 @@ spec:
                   - repo
                   - user
 
+    - title: Repository to Query
+      required:
+        - owner
+        - repoName
+      properties:
+        owner:
+          title: Repository Owner
+          type: string
+          description: GitHub username or organization
+          default: C-Nell
+        
+        repoName:
+          title: Repository Name
+          type: string
+          description: Name of the repository to query
+          default: my-new-repo
+
   steps:
-    - id: debug-user-info
-      name: Debug User Information
+    - id: log-authentication
+      name: Log Authentication Status
       action: debug:log
       input:
         message: |
-          ===== USER INFORMATION =====
-          User Entity Name: ${{ user.entity.metadata.name }}
+          ====================================
+          🔐 AUTHENTICATION STATUS
+          ====================================
+          ✅ OAuth Token Acquired: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
+          📏 Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }} characters
+          🔑 Token Preview: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 15) }}...
+          
+          ====================================
+          👤 USER INFORMATION
+          ====================================
+          User Name: ${{ user.entity.metadata.name }}
           User Email: ${{ user.entity.spec.profile.email }}
-          User Display Name: ${{ user.entity.spec.profile.displayName }}
+          Display Name: ${{ user.entity.spec.profile.displayName }}
           
-          ===== REPOSITORY INFO =====
-          Full Repo URL: ${{ parameters.repoUrl }}
-          Parsed Owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
-          Parsed Repo: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-          
-          ===== TOKEN INFO =====
-          Has User OAuth Token: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
-          Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }}
-          Token Preview: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 10) }}...
+          ====================================
+          📦 REPOSITORY PARAMETERS
+          ====================================
+          Owner: ${{ parameters.owner }}
+          Repo: ${{ parameters.repoName }}
+          Full Path: ${{ parameters.owner }}/${{ parameters.repoName }}
 
-    - id: test-github-api
-      name: Test GitHub API with User Token
+    - id: get-authenticated-user
+      name: Get Authenticated GitHub User
       action: github:api:request
       input:
-        repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repoName }}
         path: '/user'
         method: 'GET'
         token: ${{ secrets.USER_OAUTH_TOKEN }}
 
-    - id: debug-api-response
-      name: Debug API Response
+    - id: log-github-user
+      name: Log GitHub User Info
       action: debug:log
       input:
         message: |
-          ===== GITHUB API RESPONSE =====
-          Response: ${{ steps['test-github-api'].output.body }}
+          ====================================
+          🐙 GITHUB AUTHENTICATED USER
+          ====================================
+          Login: ${{ steps['get-authenticated-user'].output.body.login }}
+          Name: ${{ steps['get-authenticated-user'].output.body.name }}
+          Email: ${{ steps['get-authenticated-user'].output.body.email }}
+          Bio: ${{ steps['get-authenticated-user'].output.body.bio }}
+          Public Repos: ${{ steps['get-authenticated-user'].output.body.public_repos }}
+          Followers: ${{ steps['get-authenticated-user'].output.body.followers }}
+          Created: ${{ steps['get-authenticated-user'].output.body.created_at }}
+
+    - id: get-repo-data
+      name: Get Repository Details
+      action: github:api:request
+      input:
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repoName }}
+        path: '/repos/${{ parameters.owner }}/${{ parameters.repoName }}'
+        method: 'GET'
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+
+    - id: log-repo-info
+      name: Log Repository Info
+      action: debug:log
+      input:
+        message: |
+          ====================================
+          📦 REPOSITORY DETAILS
+          ====================================
+          Name: ${{ steps['get-repo-data'].output.body.name }}
+          Full Name: ${{ steps['get-repo-data'].output.body.full_name }}
+          Description: ${{ steps['get-repo-data'].output.body.description }}
+          Private: ${{ steps['get-repo-data'].output.body.private }}
+          Owner: ${{ steps['get-repo-data'].output.body.owner.login }}
+          Default Branch: ${{ steps['get-repo-data'].output.body.default_branch }}
+          
+          📊 STATISTICS
+          Stars: ⭐ ${{ steps['get-repo-data'].output.body.stargazers_count }}
+          Forks: 🍴 ${{ steps['get-repo-data'].output.body.forks_count }}
+          Watchers: 👀 ${{ steps['get-repo-data'].output.body.watchers_count }}
+          Open Issues: 🐛 ${{ steps['get-repo-data'].output.body.open_issues_count }}
+          
+          📅 DATES
+          Created: ${{ steps['get-repo-data'].output.body.created_at }}
+          Updated: ${{ steps['get-repo-data'].output.body.updated_at }}
+          Pushed: ${{ steps['get-repo-data'].output.body.pushed_at }}
+          
+          🔐 YOUR PERMISSIONS
+          Admin: ${{ steps['get-repo-data'].output.body.permissions.admin }}
+          Push: ${{ steps['get-repo-data'].output.body.permissions.push }}
+          Pull: ${{ steps['get-repo-data'].output.body.permissions.pull }}
+
+    - id: log-full-response
+      name: Log Full JSON Response
+      action: debug:log
+      input:
+        message: |
+          ====================================
+          📄 FULL API RESPONSE (JSON)
+          ====================================
+          ${{ steps['get-repo-data'].output.body | dump(2) }}
 
   output:
+    links:
+      - title: View Repository on GitHub
+        url: ${{ steps['get-repo-data'].output.body.html_url }}
+        icon: github
+      - title: Clone Repository
+        url: ${{ steps['get-repo-data'].output.body.clone_url }}
     text:
-      - title: User Information
+      - title: Repository
         content: |
-          **User:** ${{ user.entity.metadata.name }}
-          **Email:** ${{ user.entity.spec.profile.email }}
-      - title: Repository Selected
+          **Full Name:** ${{ steps['get-repo-data'].output.body.full_name }}
+          **Stars:** ${{ steps['get-repo-data'].output.body.stargazers_count }}
+      - title: Authenticated User
         content: |
-          **Repository:** ${{ parameters.repoUrl }}
-      - title: Token Status
-        content: |
-          **Token Acquired:** ✅ Success
-          **Token Length:** ${{ secrets.USER_OAUTH_TOKEN.length }} characters
+          **GitHub User:** ${{ steps['get-authenticated-user'].output.body.login }}
+          **Name:** ${{ steps['get-authenticated-user'].output.body.name }}
