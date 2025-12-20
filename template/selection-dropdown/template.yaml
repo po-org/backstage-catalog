@@ -1,0 +1,107 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: selection-dropdown-features
+  title: 🎯 Selection & Dropdown Features
+  description: Dropdowns, radio buttons, and checkboxes
+  tags:
+    - showcase
+    - selections
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Selection & Dropdown Features
+      description: Dropdowns, radio buttons, and checkboxes
+      properties:
+        simpleDropdown:
+          title: Simple Dropdown
+          type: string
+          description: Standard dropdown selection
+          enum:
+            - option1
+            - option2
+            - option3
+          enumNames:
+            - 'Option One (friendly name)'
+            - 'Option Two (friendly name)'
+            - 'Option Three (friendly name)'
+          default: option1
+          ui:help: 'Select one option from the dropdown'
+        
+        radioSelection:
+          title: Radio Button Selection
+          type: string
+          description: Choose one option with radio buttons
+          enum:
+            - small
+            - medium
+            - large
+          enumNames:
+            - 'Small (1 CPU, 2GB RAM)'
+            - 'Medium (2 CPU, 4GB RAM)'
+            - 'Large (4 CPU, 8GB RAM)'
+          default: medium
+          ui:widget: radio
+        
+        enableFeature:
+          title: Enable Feature
+          type: boolean
+          description: Single checkbox toggle
+          default: true
+          ui:help: 'Check to enable this feature'
+        
+        multipleFeatures:
+          title: Multiple Features
+          type: array
+          description: Select multiple options
+          items:
+            type: string
+            enum:
+              - feature1
+              - feature2
+              - feature3
+              - feature4
+          uniqueItems: true
+          ui:widget: checkboxes
+          default:
+            - feature1
+            - feature2
+        
+        multiSelect:
+          title: Multi-Select Dropdown
+          type: array
+          description: Select multiple from dropdown
+          items:
+            type: string
+            enum:
+              - tag1
+              - tag2
+              - tag3
+              - tag4
+          uniqueItems: true
+          default:
+            - tag1
+
+  steps:
+    - id: log-selections
+      name: Log Selection Values
+      action: debug:log
+      input:
+        message: |
+          🎯 SELECTION RESULTS:
+          
+          Simple Dropdown: ${{ parameters.simpleDropdown }}
+          Radio Selection: ${{ parameters.radioSelection }}
+          Feature Enabled: ${{ parameters.enableFeature }}
+          Multiple Features: ${{ parameters.multipleFeatures }}
+          Multi-Select: ${{ parameters.multiSelect }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured selection inputs
