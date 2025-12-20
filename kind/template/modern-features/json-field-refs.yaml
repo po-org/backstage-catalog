@@ -1,0 +1,129 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: schema-ref-example
+  title: JSON Schema $ref Feature
+  description: Reusable schema definitions with $ref
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Team Configuration
+      
+      # Define reusable schemas
+      definitions:
+        person:
+          type: object
+          required:
+            - name
+            - email
+          properties:
+            name:
+              type: string
+              title: Full Name
+              minLength: 2
+            email:
+              type: string
+              title: Email Address
+              format: email
+            phone:
+              type: string
+              title: Phone Number
+              pattern: '^\+?[1-9]\d{1,14}$'
+        
+        address:
+          type: object
+          required:
+            - street
+            - city
+            - country
+          properties:
+            street:
+              type: string
+              title: Street Address
+            city:
+              type: string
+              title: City
+            state:
+              type: string
+              title: State/Province
+            country:
+              type: string
+              title: Country
+              enum: [US, UK, CA, DE, FR, JP, AU]
+            postalCode:
+              type: string
+              title: Postal Code
+        
+        contact:
+          type: object
+          properties:
+            person:
+              $ref: '#/definitions/person'
+            address:
+              $ref: '#/definitions/address'
+            emergencyContact:
+              $ref: '#/definitions/person'
+      
+      # Use the definitions
+      properties:
+        teamLead:
+          title: Team Lead
+          description: Primary team lead information
+          $ref: '#/definitions/person'
+        
+        productOwner:
+          title: Product Owner
+          description: Product owner details
+          $ref: '#/definitions/person'
+        
+        officeAddress:
+          title: Office Address
+          description: Primary office location
+          $ref: '#/definitions/address'
+        
+        teamMembers:
+          title: Team Members
+          type: array
+          description: List of team members
+          items:
+            $ref: '#/definitions/person'
+          minItems: 1
+        
+        contacts:
+          title: Contact Information
+          type: array
+          description: Emergency contacts
+          items:
+            $ref: '#/definitions/contact'
+        
+        # Extending a referenced schema
+        seniorEngineer:
+          title: Senior Engineer
+          allOf:
+            - $ref: '#/definitions/person'
+            - type: object
+              properties:
+                yearsExperience:
+                  type: integer
+                  title: Years of Experience
+                  minimum: 5
+                specializations:
+                  type: array
+                  title: Specializations
+                  items:
+                    type: string
+                    enum: [frontend, backend, devops, security, data]
+  
+  steps:
+    - id: log
+      name: Log Team Configuration
+      action: debug:log
+      input:
+        message: |
+          Team Lead: ${{ parameters.teamLead | dump(2) }}
+          Product Owner: ${{ parameters.productOwner | dump(2) }}
+          Office: ${{ parameters.officeAddress | dump(2) }}
+          Team Members: ${{ parameters.teamMembers | dump(2) }}
+          Senior Engineer: ${{ parameters.seniorEngineer | dump(2) }}

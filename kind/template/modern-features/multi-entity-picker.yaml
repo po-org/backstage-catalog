@@ -1,0 +1,52 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: multientitypicker-example
+  title: MultiEntityPicker Feature
+  description: Select multiple entities with dedicated multi-select picker
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Entity Selection
+      properties:
+        relatedServices:
+          title: Related Services
+          type: array
+          description: Select multiple related services
+          ui:field: MultiEntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+              spec.type: service
+          ui:help: 'Select all related microservices'
+        
+        dependencies:
+          title: Component Dependencies
+          type: array
+          description: Components this service depends on
+          ui:field: MultiEntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+            defaultKind: Component
+        
+        relatedAPIs:
+          title: Related APIs
+          type: array
+          description: API entities used by this component
+          ui:field: MultiEntityPicker
+          ui:options:
+            catalogFilter:
+              kind: API
+  
+  steps:
+    - id: log
+      name: Log Entities
+      action: debug:log
+      input:
+        message: |
+          Related Services: ${{ parameters.relatedServices }}
+          Dependencies: ${{ parameters.dependencies }}
+          Related APIs: ${{ parameters.relatedAPIs }}

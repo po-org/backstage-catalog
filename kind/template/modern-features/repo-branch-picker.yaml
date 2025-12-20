@@ -1,0 +1,23 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: repobranchpicker-example
+  title: RepoBranchPicker Feature
+  description: Pick repository branches with autocomplete
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Branch Selection
+      properties:
+        repoBranch:
+          title: Repository Branch
+          type: string
+          description: Select branch with autocomplete
+          ui:field: RepoBranchPicker
+          ui:options:
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+            # Autocomplete currently supports GitHub & Bitbucket
+          ui:help: 'Autocomplete available for GitHub and Bitbucket'

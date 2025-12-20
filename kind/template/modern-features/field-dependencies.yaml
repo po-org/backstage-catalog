@@ -1,0 +1,118 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: simple-dependencies-example
+  title: Simple Field Dependencies
+  description: Basic field dependency patterns without oneOf
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Service Configuration
+      properties:
+        # Main toggle
+        enableDatabase:
+          title: Enable Database
+          type: boolean
+          description: Include database configuration
+          default: false
+        
+        # These fields appear when enableDatabase is true
+        databaseType:
+          title: Database Type
+          type: string
+          enum: [postgresql, mysql, mongodb]
+        
+        databaseHost:
+          title: Database Host
+          type: string
+          default: localhost
+        
+        databasePort:
+          title: Database Port
+          type: integer
+          default: 5432
+        
+        # Another toggle
+        enableCache:
+          title: Enable Caching
+          type: boolean
+          default: false
+        
+        # Dependent fields
+        cacheProvider:
+          title: Cache Provider
+          type: string
+          enum: [redis, memcached]
+        
+        cacheTTL:
+          title: Cache TTL (seconds)
+          type: integer
+          default: 3600
+        
+        # Multi-level dependencies
+        enableMonitoring:
+          title: Enable Monitoring
+          type: boolean
+          default: false
+        
+        monitoringTool:
+          title: Monitoring Tool
+          type: string
+          enum: [prometheus, datadog, newrelic]
+        
+        # This requires both monitoring AND specific tool
+        prometheusPort:
+          title: Prometheus Port
+          type: integer
+          default: 9090
+        
+        datadogApiKey:
+          title: Datadog API Key
+          type: string
+          ui:field: Secret
+      
+      # Simple dependencies syntax
+      dependencies:
+        # When enableDatabase is checked, require these fields
+        enableDatabase:
+          - databaseType
+          - databaseHost
+          - databasePort
+        
+        # When enableCache is checked, require these fields
+        enableCache:
+          - cacheProvider
+          - cacheTTL
+        
+        # When enableMonitoring is checked, require monitoringTool
+        enableMonitoring:
+          - monitoringTool
+        
+        # When specific monitoring tool selected, require its config
+        monitoringTool:
+          oneOf:
+            - properties:
+                monitoringTool:
+                  const: prometheus
+              required:
+                - prometheusPort
+            - properties:
+                monitoringTool:
+                  const: datadog
+              required:
+                - datadogApiKey
+  
+  steps:
+    - id: log
+      name: Log Dependencies
+      action: debug:log
+      input:
+        message: |
+          Database Enabled: ${{ parameters.enableDatabase }}
+          Database Type: ${{ parameters.databaseType }}
+          Cache Enabled: ${{ parameters.enableCache }}
+          Cache Provider: ${{ parameters.cacheProvider }}
+          Monitoring Enabled: ${{ parameters.enableMonitoring }}
+          Monitoring Tool: ${{ parameters.monitoringTool }}

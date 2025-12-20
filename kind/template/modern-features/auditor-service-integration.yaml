@@ -1,0 +1,26 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: audited-template-example
+  title: Audited Template
+  description: Template with audit logging
+  annotations:
+    backstage.io/audit-enabled: 'true'
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Component Details
+      properties:
+        name:
+          type: string
+          title: Name
+  
+  steps:
+    - id: create
+      name: Create Component
+      action: catalog:register
+      input:
+        # Auditor service automatically logs this action
+        catalogInfoUrl: ${{ parameters.repoUrl }}/catalog-info.yaml

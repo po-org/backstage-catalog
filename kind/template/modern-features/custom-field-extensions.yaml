@@ -1,0 +1,80 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: custom-field-example
+  title: Custom Field Extensions
+  description: Placeholder for custom field extensions
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Custom Fields
+      properties:
+        # Example: Custom AWS Region Picker (must be registered in app)
+        awsRegion:
+          title: AWS Region
+          type: string
+          description: Select AWS region with custom picker
+          ui:field: AwsRegionPicker
+          ui:options:
+            allowedRegions:
+              - us-east-1
+              - us-west-2
+              - eu-west-1
+          ui:help: 'Custom field extension for AWS regions'
+        
+        # Example: Custom Kubernetes Namespace Picker
+        k8sNamespace:
+          title: Kubernetes Namespace
+          type: string
+          description: Pick from available namespaces
+          ui:field: KubernetesNamespacePicker
+          ui:options:
+            cluster: production
+            excludeSystemNamespaces: true
+        
+        # Example: Custom Database Picker
+        database:
+          title: Database Instance
+          type: string
+          description: Select from provisioned databases
+          ui:field: DatabasePicker
+          ui:options:
+            provider: postgresql
+            minVersion: '13.0'
+        
+        # Example: Custom Slack Channel Picker
+        slackChannel:
+          title: Slack Channel
+          type: string
+          description: Select Slack channel for notifications
+          ui:field: SlackChannelPicker
+          ui:options:
+            workspace: company-workspace
+            publicOnly: false
+        
+        # Example: Custom JIRA Project Picker
+        jiraProject:
+          title: JIRA Project
+          type: string
+          description: Link to JIRA project
+          ui:field: JiraProjectPicker
+          ui:options:
+            jiraInstance: company.atlassian.net
+            projectType: software
+  
+  steps:
+    - id: log
+      name: Log Custom Fields
+      action: debug:log
+      input:
+        message: |
+          AWS Region: ${{ parameters.awsRegion }}
+          K8s Namespace: ${{ parameters.k8sNamespace }}
+          Database: ${{ parameters.database }}
+          Slack Channel: ${{ parameters.slackChannel }}
+          JIRA Project: ${{ parameters.jiraProject }}
+          
+          NOTE: These custom fields require registration in your Backstage app.
+          See: https://backstage.io/docs/features/software-templates/writing-custom-field-extensions

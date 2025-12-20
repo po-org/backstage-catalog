@@ -1,0 +1,41 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: loop-example
+  title: Step Looping Example
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Services Configuration
+      properties:
+        service1:
+          type: string
+          title: Service 1 Name
+        token1:
+          type: string
+          title: Service 1 Token
+          ui:field: Secret
+        
+        service2:
+          type: string
+          title: Service 2 Name
+        token2:
+          type: string
+          title: Service 2 Token
+          ui:field: Secret
+  
+  steps:
+    # Loop through multiple services
+    - id: setupAuthentication
+      name: Setup Authentication
+      action: auth:create
+      each:
+        - name: '${{ parameters.service1 }}'
+          token: '${{ secrets.token1 }}'
+        - name: '${{ parameters.service2 }}'
+          token: '${{ secrets.token2 }}'
+      input:
+        name: ${{ each.value.name }}
+        token: ${{ each.value.token }}

@@ -1,0 +1,30 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: custom-buttons-example
+  title: Custom Button Labels
+  description: Customize scaffolder UI button text
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  # Customize button labels
+  presentation:
+    buttonLabels:
+      backButtonText: 'Previous'
+      createButtonText: 'Deploy'
+      reviewButtonText: 'Confirm'
+  
+  parameters:
+    - title: Configuration
+      properties:
+        name:
+          type: string
+          title: Name
+  
+  steps:
+    - id: deploy
+      name: Deploy
+      action: debug:log
+      input:
+        message: Deploying...

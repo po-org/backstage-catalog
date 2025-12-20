@@ -5,7 +5,7 @@ metadata:
   title: MyGroupsPicker Feature
   description: Select from groups you are a member of
 spec:
-  owner: user:default/guest
+  owner: user:default/c-nell
   type: service
   
   parameters:
