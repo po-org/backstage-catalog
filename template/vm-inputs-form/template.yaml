@@ -1,0 +1,191 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: vm-configuration
+  title: 🖥️ VM Configuration
+  description: Provision VM configuration with OS-based conditional inputs
+  tags:
+    - vm
+    - infrastructure
+    - windows
+    - linux
+
+spec:
+  owner: user:default/c-nell
+  type: service
+
+  parameters:
+    - title: VM Configuration
+      description: Define VM details and OS-specific options
+
+      properties:
+        projectName:
+          title: Project Name
+          type: string
+
+        environment:
+          title: Environment
+          type: string
+          enum: [dev, test, prod]
+
+        serverType:
+          title: Server Type
+          type: string
+          enum:
+            - base
+            - sql
+
+        serverLocation:
+          title: Server Location
+          type: string
+          enum:
+            - us-east
+            - us-west
+            - eu
+
+        processor:
+          title: Processor (vCPU)
+          type: integer
+          default: 4
+
+        memoryGb:
+          title: Memory (GB)
+          type: integer
+          default: 16
+
+        osVersion:
+          title: OS Version
+          type: string
+          enum:
+            - rhel9
+            - windows2022
+          enumNames:
+            - Red Hat Enterprise Linux 9
+            - Windows Server 2022
+
+      dependencies:
+        osVersion:
+          oneOf:
+            # =========================
+            # RHEL 9
+            # =========================
+            - properties:
+                osVersion:
+                  const: rhel9
+
+                rhelSoftware:
+                  title: Software
+                  type: string
+                  enum:
+                    - jboss-eap
+                  enumNames:
+                    - JBoss EAP
+
+                rhelMounts:
+                  title: RHEL Mount Points (Size in GB)
+                  type: object
+                  properties:
+                    home:
+                      title: /home (GB)
+                      type: integer
+                      default: 5
+                    opt:
+                      title: /opt (GB)
+                      type: integer
+                      default: 20
+                    optApp:
+                      title: /opt/app (GB)
+                      type: integer
+                      default: 50
+
+            # =========================
+            # Windows Server 2022
+            # =========================
+            - properties:
+                osVersion:
+                  const: windows2022
+
+                windowsSoftware:
+                  title: Software
+                  type: string
+                  enum:
+                    - sql-enterprise
+                  enumNames:
+                    - SQL Server Enterprise
+
+                windowsBaseDrives:
+                  title: Base Server Drives (GB)
+                  type: object
+                  properties:
+                    c:
+                      title: C: (GB)
+                      type: integer
+                      default: 100
+                    d:
+                      title: D: (GB)
+                      type: integer
+                      default: 100
+                    e:
+                      title: E: (GB)
+                      type: integer
+                      default: 100
+
+              dependencies:
+                serverType:
+                  oneOf:
+                    - properties:
+                        serverType:
+                          const: sql
+
+                        windowsSqlDrives:
+                          title: SQL Server Drives (GB)
+                          type: object
+                          properties:
+                            l:
+                              title: L: (GB)
+                              type: integer
+                              default: 5
+                            m:
+                              title: M: (GB)
+                              type: integer
+                              default: 10
+                            n:
+                              title: N: (GB)
+                              type: integer
+                              default: 10
+                            p:
+                              title: P: (GB)
+                              type: integer
+                              default: 5
+                            s:
+                              title: S: (GB)
+                              type: integer
+                              default: 10
+                            t:
+                              title: T: (GB)
+                              type: integer
+                              default: 10
+
+  steps:
+    - id: debug-vm-inputs
+      name: Debug VM Inputs
+      action: debug:log
+      input:
+        message: |
+          🖥️ VM CONFIGURATION INPUTS
+
+          Project Name: ${{ parameters.projectName }}
+          Environment: ${{ parameters.environment }}
+          Server Type: ${{ parameters.serverType }}
+          Location: ${{ parameters.serverLocation }}
+          CPU: ${{ parameters.processor }} vCPU
+          Memory: ${{ parameters.memoryGb }} GB
+          OS Version: ${{ parameters.osVersion }}
+
+          ---- FULL PARAMETERS JSON ----
+          ${{ parameters | dump(2) }}
+
+  output:
+    text:
+      - title: VM Configuration Captured
+        content: VM configuration parameters were successfully collected.
