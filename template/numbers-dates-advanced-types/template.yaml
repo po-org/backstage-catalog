@@ -1,0 +1,87 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: numbers-dates-features
+  title: 🔢 Numbers, Dates & Advanced Types
+  description: Numeric inputs, dates, and specialized fields
+  tags:
+    - showcase
+    - numbers
+    - dates
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Numbers, Dates & Advanced Types
+      description: Numeric inputs, dates, and specialized fields
+      properties:
+        integerValue:
+          title: Integer Number
+          type: integer
+          description: Whole number input
+          default: 5
+          minimum: 1
+          maximum: 100
+          ui:help: 'Enter a number between 1 and 100'
+        
+        decimalValue:
+          title: Decimal Number
+          type: number
+          description: Number with decimals
+          default: 3.14
+          minimum: 0
+          maximum: 10
+          multipleOf: 0.01
+        
+        sliderValue:
+          title: Slider Input
+          type: integer
+          description: Drag the slider to select a value
+          default: 50
+          minimum: 0
+          maximum: 100
+          ui:widget: range
+        
+        spinnerValue:
+          title: Spinner Input
+          type: integer
+          description: Use arrows to increment/decrement
+          default: 10
+          ui:widget: updown
+        
+        startDate:
+          title: Start Date
+          type: string
+          description: Select a date
+          format: date
+          ui:help: 'Click to open date picker'
+        
+        scheduledTime:
+          title: Scheduled Date & Time
+          type: string
+          description: Select date and time
+          format: date-time
+
+  steps:
+    - id: log-numbers-dates
+      name: Log Numbers and Dates
+      action: debug:log
+      input:
+        message: |
+          🔢 NUMBERS & DATES RESULTS:
+          
+          Integer Value: ${{ parameters.integerValue }}
+          Decimal Value: ${{ parameters.decimalValue }}
+          Slider Value: ${{ parameters.sliderValue }}
+          Spinner Value: ${{ parameters.spinnerValue }}
+          Start Date: ${{ parameters.startDate }}
+          Scheduled Time: ${{ parameters.scheduledTime }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured numeric and date inputs
