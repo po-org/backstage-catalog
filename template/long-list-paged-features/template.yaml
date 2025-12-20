@@ -354,80 +354,71 @@ spec:
   #   # ========================================
   #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
   #   # ========================================
-  #   - title: Conditional & Dynamic Fields
-  #     description: Fields that show/hide based on other selections
-  #     properties:
-  #       # Main selection that controls visibility
-  #       deploymentType:
-  #         title: Deployment Type
-  #         type: string
-  #         description: Select deployment method
-  #         enum:
-  #           - kubernetes
-  #           - docker
-  #           - vm
-  #           - serverless
-  #         enumNames:
-  #           - 'Kubernetes'
-  #           - 'Docker Container'
-  #           - 'Virtual Machine'
-  #           - 'Serverless Function'
-  #         default: kubernetes
-        
-  #       # Conditional field 1 (shows when kubernetes selected)
-  #       kubernetesNamespace:
-  #         title: Kubernetes Namespace
-  #         type: string
-  #         description: K8s namespace for deployment
-  #         default: default
-  #         ui:help: 'Only visible when Kubernetes is selected'
-        
-  #       # Conditional field 2 (shows when docker selected)
-  #       dockerRegistry:
-  #         title: Docker Registry
-  #         type: string
-  #         description: Container registry URL
-  #         default: "docker.io"
-  #         ui:help: 'Only visible when Docker is selected'
-        
-  #       # Use dependencies to control visibility
-  #       enableAdvanced:
-  #         title: Enable Advanced Options
-  #         type: boolean
-  #         description: Show additional advanced configuration
-  #         default: false
-        
-  #       advancedConfig:
-  #         title: Advanced Configuration
-  #         type: object
-  #         description: Advanced settings (only shown if enabled above)
-  #         properties:
-  #           customDomain:
-  #             type: string
-  #             title: Custom Domain
-  #           replicas:
-  #             type: integer
-  #             title: Number of Replicas
-  #             default: 3
-  #           resources:
-  #             type: object
-  #             title: Resource Limits
-  #             properties:
-  #               cpu:
-  #                 type: string
-  #                 title: CPU Limit
-  #                 default: "500m"
-  #               memory:
-  #                 type: string
-  #                 title: Memory Limit
-  #                 default: "512Mi"
-  #         dependencies:
-  #           # This object only shows when enableAdvanced is true
-  #           enableAdvanced:
-  #             oneOf:
-  #               - properties:
-  #                   enableAdvanced:
-  #                     const: true
+    - title: Conditional & Dynamic Fields
+          description: Fields that show/hide based on other selections
+          properties:
+            deploymentType:
+              title: Deployment Type
+              type: string
+              description: Select deployment method
+              enum:
+                - kubernetes
+                - docker
+                - vm
+                - serverless
+              enumNames:
+                - 'Kubernetes'
+                - 'Docker Container'
+                - 'Virtual Machine'
+                - 'Serverless Function'
+              default: kubernetes
+            
+            kubernetesNamespace:
+              title: Kubernetes Namespace
+              type: string
+              description: K8s namespace for deployment
+              default: default
+            
+            dockerRegistry:
+              title: Docker Registry
+              type: string
+              description: Container registry URL
+              default: "docker.io"
+            
+            vmImage:
+              title: VM Image
+              type: string
+              description: Virtual machine image name
+            
+            functionRuntime:
+              title: Function Runtime
+              type: string
+              description: Serverless runtime environment
+            
+            enableAdvanced:
+              title: Enable Advanced Options
+              type: boolean
+              description: Show additional advanced configuration
+              default: false
+            
+            customDomain:
+              type: string
+              title: Custom Domain
+            
+            replicas:
+              type: integer
+              title: Number of Replicas
+              default: 3
+            
+            cpuLimit:
+              type: string
+              title: CPU Limit
+              default: "500m"
+            
+            memoryLimit:
+              type: string
+              title: Memory Limit
+              default: "512Mi"
 
   #   # ========================================
   #   # PAGE 7: VALIDATION & PATTERNS
