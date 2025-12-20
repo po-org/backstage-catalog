@@ -339,18 +339,18 @@ spec:
           description: Name for the catalog entity
           ui:field: EntityNamePicker
         
-  #       # Multi-entity picker
-  #       componentDependencies:  # Changed from 'dependencies'
-  #         title: Dependencies
-  #         type: array
-  #         description: Select multiple entities as dependencies
-  #         items:
-  #           type: string
-  #         ui:field: EntityPicker
-  #         ui:options:
-  #           catalogFilter:
-  #             kind: Component
-  #           multiple: true
+        # Multi-entity picker
+        componentDependencies:  # Changed from 'dependencies'
+          title: Dependencies
+          type: array
+          description: Select multiple entities as dependencies
+          items:
+            type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Component
+            multiple: true
             
   #   # ========================================
   #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
