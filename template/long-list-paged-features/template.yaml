@@ -321,23 +321,23 @@ spec:
               kind: Component
             defaultKind: Component
         
-  #       # Repo URL picker
-  #       repoUrl:
-  #         title: Repository Location
-  #         type: string
-  #         description: Choose a repository location
-  #         ui:field: RepoUrlPicker
-  #         ui:options:
-  #           allowedHosts:
-  #             - github.com
-  #             - gitlab.com
+        # Repo URL picker
+        repoUrl:
+          title: Repository Location
+          type: string
+          description: Choose a repository location
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+              - gitlab.com
         
-  #       # Entity name picker (validates against catalog naming)
-  #       entityName:
-  #         title: Entity Name
-  #         type: string
-  #         description: Name for the catalog entity
-  #         ui:field: EntityNamePicker
+        # Entity name picker (validates against catalog naming)
+        entityName:
+          title: Entity Name
+          type: string
+          description: Name for the catalog entity
+          ui:field: EntityNamePicker
         
   #       # Multi-entity picker
   #       componentDependencies:  # Changed from 'dependencies'
