@@ -83,10 +83,9 @@ spec:
       action: http:backstage:request
       input:
         method: GET
-        path: /proxy/github/user
+        path: '/proxy/github/user'
         headers:
-          Authorization: token ${{ secrets.USER_OAUTH_TOKEN }}
-          Accept: application/vnd.github.v3+json
+          Authorization: 'token ${{ secrets.USER_OAUTH_TOKEN }}'
 
     - id: log-github-user
       name: Log GitHub User Info
