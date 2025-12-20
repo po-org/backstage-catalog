@@ -1,0 +1,109 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: arrays-objects-features
+  title: 📦 Arrays & Complex Objects
+  description: Lists, arrays, and nested objects
+  tags:
+    - showcase
+    - arrays
+    - objects
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Arrays & Complex Objects
+      description: Lists, arrays, and nested objects
+      properties:
+        tagsList:
+          title: Tags List
+          type: array
+          description: Add multiple tags
+          items:
+            type: string
+          ui:options:
+            orderable: true
+            addable: true
+            removable: true
+          ui:help: 'Click + to add new tags'
+        
+        fixedArray:
+          title: Fixed Array Items
+          type: array
+          description: Array with predefined structure
+          items:
+            type: string
+          minItems: 2
+          maxItems: 5
+          default:
+            - item1
+            - item2
+        
+        configObject:
+          title: Configuration Object
+          type: object
+          description: Nested object with multiple properties
+          properties:
+            name:
+              type: string
+              title: Config Name
+              default: "my-config"
+            enabled:
+              type: boolean
+              title: Enabled
+              default: true
+            priority:
+              type: integer
+              title: Priority
+              default: 1
+          required:
+            - name
+        
+        teamMembers:
+          title: Team Members
+          type: array
+          description: List of team members with details
+          items:
+            type: object
+            required:
+              - name
+              - role
+            properties:
+              name:
+                type: string
+                title: Name
+              role:
+                type: string
+                title: Role
+                enum:
+                  - developer
+                  - designer
+                  - manager
+              email:
+                type: string
+                title: Email
+                format: email
+          ui:options:
+            orderable: true
+
+  steps:
+    - id: log-arrays-objects
+      name: Log Arrays and Objects
+      action: debug:log
+      input:
+        message: |
+          📦 ARRAYS & OBJECTS RESULTS:
+          
+          Tags List: ${{ parameters.tagsList }}
+          Fixed Array: ${{ parameters.fixedArray }}
+          Config Object: ${{ parameters.configObject | dump(2) }}
+          Team Members: ${{ parameters.teamMembers | dump(2) }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured arrays and objects
