@@ -1,0 +1,87 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: text-input-features
+  title: 📝 Text Input Features
+  description: Demonstrates various text input types and validations
+  tags:
+    - showcase
+    - text-inputs
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Text Input Features
+      description: Various text input types and validations
+      properties:
+        basicText:
+          title: Basic Text Input
+          type: string
+          description: Simple text field with validation
+          default: "example-value"
+          ui:autofocus: true
+          ui:help: 'This field is auto-focused when the form loads'
+          pattern: '^[a-z0-9-]+$'
+          minLength: 3
+          maxLength: 50
+        
+        email:
+          title: Email Address
+          type: string
+          description: Email with built-in validation
+          format: email
+          ui:help: 'Must be a valid email address'
+        
+        websiteUrl:
+          title: Website URL
+          type: string
+          description: URL with validation
+          format: uri
+          default: "https://example.com"
+        
+        longDescription:
+          title: Long Description
+          type: string
+          description: Multi-line text area
+          default: "Enter a detailed description here..."
+          ui:widget: textarea
+          ui:options:
+            rows: 5
+          ui:help: 'Use this for longer text content'
+        
+        secretToken:
+          title: Secret Token
+          type: string
+          description: Hidden password input
+          ui:field: Secret
+          ui:help: 'Characters will be hidden as you type'
+          
+        hiddenField:
+          title: Hidden Field
+          type: string
+          default: "hidden-value"
+          ui:widget: hidden
+
+  steps:
+    - id: log-text-inputs
+      name: Log Text Input Values
+      action: debug:log
+      input:
+        message: |
+          📝 TEXT INPUT RESULTS:
+          
+          Basic Text: ${{ parameters.basicText }}
+          Email: ${{ parameters.email }}
+          Website URL: ${{ parameters.websiteUrl }}
+          Long Description: ${{ parameters.longDescription }}
+          Secret Token: [HIDDEN]
+          Hidden Field: ${{ parameters.hiddenField }}
+          
+          Full JSON:
+          ${{ parameters | dump(2) }}
+  
+  output:
+    text:
+      - title: Results
+        content: Successfully captured text inputs
