@@ -2,8 +2,8 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: vm-configuration
-  title: 🖥️ VM Configuration
-  description: Provision VM configuration with OS-based conditional inputs
+  title: "🖥️ VM Configuration"
+  description: "Provision VM configuration with OS-based conditional inputs"
   tags:
     - vm
     - infrastructure
@@ -15,28 +15,28 @@ spec:
   type: service
 
   parameters:
-    - title: VM Configuration
-      description: Define VM details and OS-specific options
+    - title: "VM Configuration"
+      description: "Define VM details and OS-specific options"
 
       properties:
         projectName:
-          title: Project Name
+          title: "Project Name"
           type: string
 
         environment:
-          title: Environment
+          title: "Environment"
           type: string
           enum: [dev, test, prod]
 
         serverType:
-          title: Server Type
+          title: "Server Type"
           type: string
           enum:
             - base
             - sql
 
         serverLocation:
-          title: Server Location
+          title: "Server Location"
           type: string
           enum:
             - us-east
@@ -44,24 +44,24 @@ spec:
             - eu
 
         processor:
-          title: Processor (vCPU)
+          title: "Processor (vCPU)"
           type: integer
           default: 4
 
         memoryGb:
-          title: Memory (GB)
+          title: "Memory (GB)"
           type: integer
           default: 16
 
         osVersion:
-          title: OS Version
+          title: "OS Version"
           type: string
           enum:
             - rhel9
             - windows2022
           enumNames:
-            - Red Hat Enterprise Linux 9
-            - Windows Server 2022
+            - "Red Hat Enterprise Linux 9"
+            - "Windows Server 2022"
 
       dependencies:
         osVersion:
@@ -74,27 +74,27 @@ spec:
                   const: rhel9
 
                 rhelSoftware:
-                  title: Software
+                  title: "Software"
                   type: string
                   enum:
                     - jboss-eap
                   enumNames:
-                    - JBoss EAP
+                    - "JBoss EAP"
 
                 rhelMounts:
-                  title: RHEL Mount Points (Size in GB)
+                  title: "RHEL Mount Points (Size in GB)"
                   type: object
                   properties:
                     home:
-                      title: /home (GB)
+                      title: "/home (GB)"
                       type: integer
                       default: 5
                     opt:
-                      title: /opt (GB)
+                      title: "/opt (GB)"
                       type: integer
                       default: 20
                     optApp:
-                      title: /opt/app (GB)
+                      title: "/opt/app (GB)"
                       type: integer
                       default: 50
 
@@ -106,27 +106,27 @@ spec:
                   const: windows2022
 
                 windowsSoftware:
-                  title: Software
+                  title: "Software"
                   type: string
                   enum:
                     - sql-enterprise
                   enumNames:
-                    - SQL Server Enterprise
+                    - "SQL Server Enterprise"
 
                 windowsBaseDrives:
-                  title: Base Server Drives (GB)
+                  title: "Base Server Drives (GB)"
                   type: object
                   properties:
                     c:
-                      title: C: (GB)
+                      title: "C: (GB)"
                       type: integer
                       default: 100
                     d:
-                      title: D: (GB)
+                      title: "D: (GB)"
                       type: integer
                       default: 100
                     e:
-                      title: E: (GB)
+                      title: "E: (GB)"
                       type: integer
                       default: 100
 
@@ -138,37 +138,37 @@ spec:
                           const: sql
 
                         windowsSqlDrives:
-                          title: SQL Server Drives (GB)
+                          title: "SQL Server Drives (GB)"
                           type: object
                           properties:
                             l:
-                              title: L: (GB)
+                              title: "L: (GB)"
                               type: integer
                               default: 5
                             m:
-                              title: M: (GB)
+                              title: "M: (GB)"
                               type: integer
                               default: 10
                             n:
-                              title: N: (GB)
+                              title: "N: (GB)"
                               type: integer
                               default: 10
                             p:
-                              title: P: (GB)
+                              title: "P: (GB)"
                               type: integer
                               default: 5
                             s:
-                              title: S: (GB)
+                              title: "S: (GB)"
                               type: integer
                               default: 10
                             t:
-                              title: T: (GB)
+                              title: "T: (GB)"
                               type: integer
                               default: 10
 
   steps:
     - id: debug-vm-inputs
-      name: Debug VM Inputs
+      name: "Debug VM Inputs"
       action: debug:log
       input:
         message: |
@@ -177,8 +177,8 @@ spec:
           Project Name: ${{ parameters.projectName }}
           Environment: ${{ parameters.environment }}
           Server Type: ${{ parameters.serverType }}
-          Location: ${{ parameters.serverLocation }}
-          CPU: ${{ parameters.processor }} vCPU
+          Server Location: ${{ parameters.serverLocation }}
+          Processor: ${{ parameters.processor }} vCPU
           Memory: ${{ parameters.memoryGb }} GB
           OS Version: ${{ parameters.osVersion }}
 
@@ -187,5 +187,5 @@ spec:
 
   output:
     text:
-      - title: VM Configuration Captured
-        content: VM configuration parameters were successfully collected.
+      - title: "VM Configuration Captured"
+        content: "VM configuration parameters were successfully collected."
