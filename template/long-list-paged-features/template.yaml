@@ -340,18 +340,6 @@ spec:
           ui:field: EntityNamePicker
         
         # Multi-entity picker
-        componentDependencies:  # Changed from 'dependencies'
-          title: Dependencies
-          type: array
-          description: Select multiple entities as dependencies
-          items:
-            type: string
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: Component
-            multiple: true
-
         componentDependencies:
           title: Dependencies
           type: array
