@@ -1,0 +1,31 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: environment-selector-example
+  title: Environment Selector Example
+  description: Simple example showing checkbox array selection
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Fill in some steps
+      properties:
+        name:
+          title: Select environments
+          type: array
+          items:
+            type: string
+            enum:
+              - production
+              - staging
+              - development
+          uniqueItems: true
+          ui:widget: checkboxes
+  
+  steps:
+    - id: log-environments
+      name: Log Selected Environments
+      action: debug:log
+      input:
+        message: 'Selected environments: ${{ parameters.name }}'
