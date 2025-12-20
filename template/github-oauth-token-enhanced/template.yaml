@@ -58,7 +58,7 @@ spec:
           ====================================
           🔐 AUTHENTICATION STATUS
           ====================================
-          ✅ OAuth Token Acquired: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
+          ✅ OAuth Token Acquired: Yes
           📏 Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }} characters
           🔑 Token Preview: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 15) }}...
           
@@ -78,12 +78,13 @@ spec:
 
     - id: get-authenticated-user
       name: Get Authenticated GitHub User
-      action: github:api:request
+      action: http:backstage:request
       input:
-        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repoName }}
-        path: '/user'
-        method: 'GET'
-        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        method: GET
+        path: /api/github/user
+        headers:
+          Authorization: token ${{ secrets.USER_OAUTH_TOKEN }}
+          Accept: application/vnd.github.v3+json
 
     - id: log-github-user
       name: Log GitHub User Info
@@ -93,6 +94,7 @@ spec:
           ====================================
           🐙 GITHUB AUTHENTICATED USER
           ====================================
+          Response Code: ${{ steps['get-authenticated-user'].output.code }}
           Login: ${{ steps['get-authenticated-user'].output.body.login }}
           Name: ${{ steps['get-authenticated-user'].output.body.name }}
           Email: ${{ steps['get-authenticated-user'].output.body.email }}
@@ -103,12 +105,13 @@ spec:
 
     - id: get-repo-data
       name: Get Repository Details
-      action: github:api:request
+      action: http:backstage:request
       input:
-        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repoName }}
-        path: '/repos/${{ parameters.owner }}/${{ parameters.repoName }}'
-        method: 'GET'
-        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        method: GET
+        path: /api/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
+        headers:
+          Authorization: token ${{ secrets.USER_OAUTH_TOKEN }}
+          Accept: application/vnd.github.v3+json
 
     - id: log-repo-info
       name: Log Repository Info
@@ -118,6 +121,7 @@ spec:
           ====================================
           📦 REPOSITORY DETAILS
           ====================================
+          Response Code: ${{ steps['get-repo-data'].output.code }}
           Name: ${{ steps['get-repo-data'].output.body.name }}
           Full Name: ${{ steps['get-repo-data'].output.body.full_name }}
           Description: ${{ steps['get-repo-data'].output.body.description }}
