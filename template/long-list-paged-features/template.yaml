@@ -309,6 +309,7 @@ spec:
             catalogFilter:
               - kind: User
               - kind: Group
+          default: "C-Nell"
 
         # Entity picker (any catalog entity)
         relatedEntity:
