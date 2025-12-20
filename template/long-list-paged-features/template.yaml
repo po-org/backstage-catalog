@@ -357,6 +357,7 @@ spec:
   #   # ========================================
     - title: Conditional & Dynamic Fields
       description: Fields that show/hide based on other selections
+    
       properties:
         deploymentType:
           title: Deployment Type
@@ -368,58 +369,70 @@ spec:
             - vm
             - serverless
           enumNames:
-            - 'Kubernetes'
-            - 'Docker Container'
-            - 'Virtual Machine'
-            - 'Serverless Function'
+            - Kubernetes
+            - Docker Container
+            - Virtual Machine
+            - Serverless Function
           default: kubernetes
-        
-        kubernetesNamespace:
-          title: Kubernetes Namespace
-          type: string
-          description: K8s namespace for deployment
-          default: default
-        
-        dockerRegistry:
-          title: Docker Registry
-          type: string
-          description: Container registry URL
-          default: "docker.io"
-        
-        vmImage:
-          title: VM Image
-          type: string
-          description: Virtual machine image name
-        
-        functionRuntime:
-          title: Function Runtime
-          type: string
-          description: Serverless runtime environment
-        
+    
         enableAdvanced:
           title: Enable Advanced Options
           type: boolean
-          description: Show additional advanced configuration
           default: false
-        
-        customDomain:
-          type: string
-          title: Custom Domain
-        
-        replicas:
-          type: integer
-          title: Number of Replicas
-          default: 3
-        
-        cpuLimit:
-          type: string
-          title: CPU Limit
-          default: "500m"
-        
-        memoryLimit:
-          type: string
-          title: Memory Limit
-          default: "512Mi"
+    
+      dependencies:
+        deploymentType:
+          oneOf:
+            - properties:
+                deploymentType:
+                  const: kubernetes
+                kubernetesNamespace:
+                  title: Kubernetes Namespace
+                  type: string
+                  default: default
+                replicas:
+                  title: Number of Replicas
+                  type: integer
+                  default: 3
+    
+            - properties:
+                deploymentType:
+                  const: docker
+                dockerRegistry:
+                  title: Docker Registry
+                  type: string
+                  default: docker.io
+    
+            - properties:
+                deploymentType:
+                  const: vm
+                vmImage:
+                  title: VM Image
+                  type: string
+    
+            - properties:
+                deploymentType:
+                  const: serverless
+                functionRuntime:
+                  title: Function Runtime
+                  type: string
+    
+        enableAdvanced:
+          oneOf:
+            - properties:
+                enableAdvanced:
+                  const: true
+                customDomain:
+                  title: Custom Domain
+                  type: string
+                cpuLimit:
+                  title: CPU Limit
+                  type: string
+                  default: "500m"
+                memoryLimit:
+                  title: Memory Limit
+                  type: string
+                  default: "512Mi"
 
   #   # ========================================
   #   # PAGE 7: VALIDATION & PATTERNS
