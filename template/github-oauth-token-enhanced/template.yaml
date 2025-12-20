@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-oauth-debug-simple
-  title: GitHub OAuth Debug (Simple)
-  description: Test if OAuth token is being captured
+  name: oauth-diagnostic
+  title: OAuth Diagnostic Template
+  description: Diagnose OAuth token capture issues
   tags:
     - debug
     - oauth
@@ -30,85 +30,34 @@ spec:
                 github:
                   - repo
                   - user
-                  - read:org
 
   steps:
-    - id: log-token-check
-      name: Check if Token Exists
+    - id: check-secrets
+      name: Check All Secrets
       action: debug:log
       input:
         message: |
-          ====================================
-          🔐 OAUTH TOKEN STATUS
-          ====================================
-          Token variable exists: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
-          Token is not null: ${{ secrets.USER_OAUTH_TOKEN !== null }}
-          Token is not empty: ${{ secrets.USER_OAUTH_TOKEN !== '' }}
-
-    - id: log-token-details
-      name: Log Token Details
-      action: debug:log
-      input:
-        message: |
-          ====================================
-          📋 TOKEN INFORMATION
-          ====================================
-          Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }}
-          Token First 10 chars: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 10) }}
-          Token First 20 chars: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 20) }}
-          Token Type (starts with): ${{ secrets.USER_OAUTH_TOKEN.substring(0, 4) }}
-
-    - id: log-user-info
-      name: Log Backstage User Info
-      action: debug:log
-      input:
-        message: |
-          ====================================
-          👤 BACKSTAGE USER INFORMATION
-          ====================================
-          User Entity Name: ${{ user.entity.metadata.name }}
-          User Email: ${{ user.entity.spec.profile.email }}
-          User Display Name: ${{ user.entity.spec.profile.displayName }}
-          User Entity UID: ${{ user.entity.metadata.uid }}
-
-    - id: log-repo-url
-      name: Log Selected Repository
-      action: debug:log
-      input:
-        message: |
-          ====================================
-          📦 SELECTED REPOSITORY
-          ====================================
-          Full Repo URL: ${{ parameters.repoUrl }}
-          Parsed Owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
-          Parsed Repo: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-          Parsed Host: ${{ parameters.repoUrl | parseRepoUrl | pick('host') }}
-
-    - id: log-success
-      name: OAuth Success Message
-      action: debug:log
-      input:
-        message: |
-          ====================================
-          ✅ SUCCESS!
-          ====================================
-          OAuth token was successfully captured!
-          You can now use this token in GitHub API calls.
+          Checking secrets object...
+          Secrets: ${{ secrets }}
           
-          Token is available as: secrets.USER_OAUTH_TOKEN
-          Token will be cached for this session.
+    - id: check-user-oauth
+      name: Check USER_OAUTH_TOKEN
+      action: debug:log
+      input:
+        message: |
+          USER_OAUTH_TOKEN type: ${{ typeof secrets.USER_OAUTH_TOKEN }}
+          USER_OAUTH_TOKEN value: ${{ secrets.USER_OAUTH_TOKEN }}
+          
+    - id: check-context
+      name: Check Full Context
+      action: debug:log
+      input:
+        message: |
+          Parameters: ${{ parameters | dump }}
+          User: ${{ user | dump }}
+          Secrets: ${{ secrets | dump }}
 
   output:
     text:
-      - title: OAuth Status
-        content: |
-          ✅ **OAuth token successfully captured!**
-          
-          Token length: ${{ secrets.USER_OAUTH_TOKEN.length }} characters
-          
-          User: ${{ user.entity.metadata.name }}
-      - title: Next Steps
-        content: |
-          The OAuth token is now available and can be used to make authenticated GitHub API calls.
-          
-          Token will remain cached for this browser session.
+      - title: Diagnostic Complete
+        content: Check the task logs for detailed information
