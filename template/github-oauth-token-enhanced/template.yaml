@@ -1,12 +1,13 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: oauth-diagnostic
-  title: OAuth Diagnostic Template
-  description: Diagnose OAuth token capture issues
+  name: github-oauth-debug
+  title: GitHub OAuth Debug Template
+  description: Test GitHub OAuth token capture with detailed logging
   tags:
     - debug
     - oauth
+    - github
 spec:
   owner: user:default/c-nell
   type: service
@@ -31,33 +32,148 @@ spec:
                   - repo
                   - user
 
+    - title: Repository to Query
+      required:
+        - owner
+        - repoName
+      properties:
+        owner:
+          title: Repository Owner
+          type: string
+          description: GitHub username or organization
+          default: C-Nell
+        
+        repoName:
+          title: Repository Name
+          type: string
+          description: Name of the repository to query
+          default: backstage-catalog
+
   steps:
-    - id: check-secrets
-      name: Check All Secrets
+    - id: log-authentication
+      name: Log Authentication Status
       action: debug:log
       input:
         message: |
-          Checking secrets object...
-          Secrets: ${{ secrets }}
+          === AUTHENTICATION STATUS ===
           
-    - id: check-user-oauth
-      name: Check USER_OAUTH_TOKEN
-      action: debug:log
-      input:
-        message: |
-          USER_OAUTH_TOKEN type: ${{ typeof secrets.USER_OAUTH_TOKEN }}
-          USER_OAUTH_TOKEN value: ${{ secrets.USER_OAUTH_TOKEN }}
+          OAuth Token Type: ${{ typeof secrets.USER_OAUTH_TOKEN }}
+          Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }}
+          Token Preview (first 20 chars): ${{ secrets.USER_OAUTH_TOKEN.substring(0, 20) }}
           
-    - id: check-context
-      name: Check Full Context
+          === USER INFORMATION ===
+          
+          Backstage User: ${{ user.entity.metadata.name }}
+          User Email: ${{ user.entity.spec.profile.email }}
+          Display Name: ${{ user.entity.spec.profile.displayName }}
+          
+          === PARAMETERS ===
+          
+          Selected Repo URL: ${{ parameters.repoUrl }}
+          Owner: ${{ parameters.owner }}
+          Repo Name: ${{ parameters.repoName }}
+          
+          === SECRETS DUMP ===
+          
+          All Secrets:
+          ${{ secrets | dump(2) }}
+
+    - id: get-authenticated-user
+      name: Get Authenticated GitHub User
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/user
+        headers:
+          Authorization: token ${{ secrets.USER_OAUTH_TOKEN }}
+          Accept: application/vnd.github.v3+json
+
+    - id: log-github-user
+      name: Log GitHub User Info
       action: debug:log
       input:
         message: |
-          Parameters: ${{ parameters | dump }}
-          User: ${{ user | dump }}
-          Secrets: ${{ secrets | dump }}
+          === GITHUB AUTHENTICATED USER ===
+          
+          Status Code: ${{ steps['get-authenticated-user'].output.code }}
+          
+          Login: ${{ steps['get-authenticated-user'].output.body.login }}
+          Name: ${{ steps['get-authenticated-user'].output.body.name }}
+          Email: ${{ steps['get-authenticated-user'].output.body.email }}
+          Company: ${{ steps['get-authenticated-user'].output.body.company }}
+          Bio: ${{ steps['get-authenticated-user'].output.body.bio }}
+          
+          Public Repos: ${{ steps['get-authenticated-user'].output.body.public_repos }}
+          Followers: ${{ steps['get-authenticated-user'].output.body.followers }}
+          Following: ${{ steps['get-authenticated-user'].output.body.following }}
+          
+          Account Created: ${{ steps['get-authenticated-user'].output.body.created_at }}
+          
+          Full JSON Response:
+          ${{ steps['get-authenticated-user'].output.body | dump(2) }}
+
+    - id: get-repo-data
+      name: Get Repository Details
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
+        headers:
+          Authorization: token ${{ secrets.USER_OAUTH_TOKEN }}
+          Accept: application/vnd.github.v3+json
+
+    - id: log-repo-info
+      name: Log Repository Info
+      action: debug:log
+      input:
+        message: |
+          === REPOSITORY DETAILS ===
+          
+          Status Code: ${{ steps['get-repo-data'].output.code }}
+          
+          Name: ${{ steps['get-repo-data'].output.body.name }}
+          Full Name: ${{ steps['get-repo-data'].output.body.full_name }}
+          Description: ${{ steps['get-repo-data'].output.body.description }}
+          Private: ${{ steps['get-repo-data'].output.body.private }}
+          Owner: ${{ steps['get-repo-data'].output.body.owner.login }}
+          Default Branch: ${{ steps['get-repo-data'].output.body.default_branch }}
+          
+          === STATISTICS ===
+          
+          Stars: ${{ steps['get-repo-data'].output.body.stargazers_count }}
+          Forks: ${{ steps['get-repo-data'].output.body.forks_count }}
+          Watchers: ${{ steps['get-repo-data'].output.body.watchers_count }}
+          Open Issues: ${{ steps['get-repo-data'].output.body.open_issues_count }}
+          Size: ${{ steps['get-repo-data'].output.body.size }} KB
+          
+          === DATES ===
+          
+          Created: ${{ steps['get-repo-data'].output.body.created_at }}
+          Updated: ${{ steps['get-repo-data'].output.body.updated_at }}
+          Pushed: ${{ steps['get-repo-data'].output.body.pushed_at }}
+          
+          === YOUR PERMISSIONS ===
+          
+          Admin: ${{ steps['get-repo-data'].output.body.permissions.admin }}
+          Push: ${{ steps['get-repo-data'].output.body.permissions.push }}
+          Pull: ${{ steps['get-repo-data'].output.body.permissions.pull }}
+          
+          === URLs ===
+          
+          HTML URL: ${{ steps['get-repo-data'].output.body.html_url }}
+          Clone URL: ${{ steps['get-repo-data'].output.body.clone_url }}
+          SSH URL: ${{ steps['get-repo-data'].output.body.ssh_url }}
+          
+          Full JSON Response:
+          ${{ steps['get-repo-data'].output.body | dump(2) }}
 
   output:
+    links:
+      - title: View Repository on GitHub
+        url: ${{ steps['get-repo-data'].output.body.html_url }}
     text:
-      - title: Diagnostic Complete
-        content: Check the task logs for detailed information
+      - title: Summary
+        content: |
+          **Authenticated as:** ${{ steps['get-authenticated-user'].output.body.login }}
+          **Repository:** ${{ steps['get-repo-data'].output.body.full_name }}
+          **Stars:** ${{ steps['get-repo-data'].output.body.stargazers_count }}
