@@ -1,0 +1,83 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: oauth-debug-template
+  title: OAuth Token Debug Template
+  description: Simple template to test user OAuth token authentication
+  tags:
+    - debug
+    - oauth
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Choose a GitHub Repository
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+              additionalScopes:
+                github:
+                  - repo
+                  - user
+
+  steps:
+    - id: debug-user-info
+      name: Debug User Information
+      action: debug:log
+      input:
+        message: |
+          ===== USER INFORMATION =====
+          User Entity Name: ${{ user.entity.metadata.name }}
+          User Email: ${{ user.entity.spec.profile.email }}
+          User Display Name: ${{ user.entity.spec.profile.displayName }}
+          
+          ===== REPOSITORY INFO =====
+          Full Repo URL: ${{ parameters.repoUrl }}
+          Parsed Owner: ${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}
+          Parsed Repo: ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+          
+          ===== TOKEN INFO =====
+          Has User OAuth Token: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
+          Token Length: ${{ secrets.USER_OAUTH_TOKEN.length }}
+          Token Preview: ${{ secrets.USER_OAUTH_TOKEN.substring(0, 10) }}...
+
+    - id: test-github-api
+      name: Test GitHub API with User Token
+      action: github:api:request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        path: '/user'
+        method: 'GET'
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+
+    - id: debug-api-response
+      name: Debug API Response
+      action: debug:log
+      input:
+        message: |
+          ===== GITHUB API RESPONSE =====
+          Response: ${{ steps['test-github-api'].output.body }}
+
+  output:
+    text:
+      - title: User Information
+        content: |
+          **User:** ${{ user.entity.metadata.name }}
+          **Email:** ${{ user.entity.spec.profile.email }}
+      - title: Repository Selected
+        content: |
+          **Repository:** ${{ parameters.repoUrl }}
+      - title: Token Status
+        content: |
+          **Token Acquired:** ✅ Success
+          **Token Length:** ${{ secrets.USER_OAUTH_TOKEN.length }} characters
