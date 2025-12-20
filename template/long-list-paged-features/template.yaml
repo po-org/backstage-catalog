@@ -354,10 +354,8 @@ spec:
 #   # ========================================
 #   # PAGE 6: CONDITIONAL & DYNAMIC FIELDS
 #   # ========================================
-    - title: Conditional & Dynamic Fields
-      description: Fields that show/hide based on other selections
+    - title: Select Deployment Type
       properties:
-        # Main selection that controls visibility
         deploymentType:
           title: Deployment Type
           type: string
@@ -373,122 +371,44 @@ spec:
             - 'Virtual Machine'
             - 'Serverless Function'
           default: kubernetes
-        
-        # Conditional field 1 (shows when kubernetes selected)
+    
+    # Kubernetes-specific page
+    - title: Kubernetes Configuration
+      properties:
         kubernetesNamespace:
           title: Kubernetes Namespace
           type: string
           description: K8s namespace for deployment
           default: default
-          ui:help: 'Only visible when Kubernetes is selected'
-        
-        # Conditional field 2 (shows when docker selected)
+      dependencies:
+        deploymentType:
+          allOf:
+            - if:
+                properties:
+                  deploymentType:
+                    const: kubernetes
+              then:
+                required:
+                  - kubernetesNamespace
+    
+    # Docker-specific page
+    - title: Docker Configuration
+      properties:
         dockerRegistry:
           title: Docker Registry
           type: string
           description: Container registry URL
           default: "docker.io"
-          ui:help: 'Only visible when Docker is selected'
-        
-        # Conditional field 3 (shows when vm selected)
-        vmImage:
-          title: VM Image
-          type: string
-          description: Virtual machine image name
-          ui:help: 'Only visible when Virtual Machine is selected'
-        
-        # Conditional field 4 (shows when serverless selected)
-        functionRuntime:
-          title: Function Runtime
-          type: string
-          description: Serverless runtime environment
-          enum:
-            - nodejs18
-            - python39
-            - java11
-          ui:help: 'Only visible when Serverless is selected'
-        
-        # Use dependencies to control visibility
-        enableAdvanced:
-          title: Enable Advanced Options
-          type: boolean
-          description: Show additional advanced configuration
-          default: false
-        
-        # Advanced config fields (will be shown/hidden based on enableAdvanced)
-        customDomain:
-          type: string
-          title: Custom Domain
-          ui:help: 'Only visible when Advanced Options enabled'
-        
-        replicas:
-          type: integer
-          title: Number of Replicas
-          default: 3
-          ui:help: 'Only visible when Advanced Options enabled'
-        
-        cpuLimit:
-          type: string
-          title: CPU Limit
-          default: "500m"
-          ui:help: 'Only visible when Advanced Options enabled'
-        
-        memoryLimit:
-          type: string
-          title: Memory Limit
-          default: "512Mi"
-          ui:help: 'Only visible when Advanced Options enabled'
-      
-      # Use allOf with if/then to control field visibility
-      allOf:
-        # Show kubernetesNamespace only when deploymentType is kubernetes
-        - if:
-            properties:
-              deploymentType:
-                const: kubernetes
-          then:
-            required:
-              - kubernetesNamespace
-        
-        # Show dockerRegistry only when deploymentType is docker
-        - if:
-            properties:
-              deploymentType:
-                const: docker
-          then:
-            required:
-              - dockerRegistry
-        
-        # Show vmImage only when deploymentType is vm
-        - if:
-            properties:
-              deploymentType:
-                const: vm
-          then:
-            required:
-              - vmImage
-        
-        # Show functionRuntime only when deploymentType is serverless
-        - if:
-            properties:
-              deploymentType:
-                const: serverless
-          then:
-            required:
-              - functionRuntime
-        
-        # Show advanced fields only when enableAdvanced is true
-        - if:
-            properties:
-              enableAdvanced:
-                const: true
-          then:
-            required:
-              - customDomain
-              - replicas
-              - cpuLimit
-              - memoryLimit
-
+      dependencies:
+        deploymentType:
+          allOf:
+            - if:
+                properties:
+                  deploymentType:
+                    const: docker
+              then:
+                required:
+                  - dockerRegistry
     # ========================================
     # PAGE 7: VALIDATION & PATTERNS
     # ========================================
