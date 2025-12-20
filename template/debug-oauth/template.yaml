@@ -1,0 +1,42 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: oauth-token-check
+  title: OAuth Token Check
+  description: Check if token is captured
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: GitHub Authentication
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Select a GitHub Repository
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+
+  steps:
+    - id: check-token
+      name: Check Token
+      action: debug:log
+      input:
+        message: |
+          Secrets object:
+          ${{ secrets | dump(2) }}
+          
+          Token value: "${{ secrets.USER_OAUTH_TOKEN }}"
+          Token type: ${{ typeof secrets.USER_OAUTH_TOKEN }}
+          Token exists: ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
+
+  output:
+    text:
+      - title: Result
+        content: Token captured - ${{ secrets.USER_OAUTH_TOKEN !== undefined }}
