@@ -1,0 +1,88 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: decommission-request-form
+  title: Decommission Servers (AAP Workflow)
+  description: >
+    Self-service - Request decomission workflow for servers (launches AAP workflow template).
+    Use this form to request that a set of servers be decommissioned. The request is recorded
+    in Backstage Catalog for traceability and an AAP workflow is launched.
+  tags:
+    - decommission
+    - aap
+    - workflow
+spec:
+  owner: user:default/c-nell
+  type: service
+
+  parameters:
+    - title: Decommission Configuration
+      description: |
+        Quick steps:
+        1) Add server FQDNs (one per tag). 2) Optionally provide `extra_vars` (advanced). 3) Confirm and submit.
+      required: 
+        - servers
+        - confirm_decommission
+      properties:
+        servers: 
+          title: Server to decomission
+          description: >
+            Enter one fully-qualified hostname per item (example: hostname.ds.irsnet.gov).
+            Use Enter or the > button to add multiple entries. Duplicates are prevented.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            # pattern: '^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$'
+            title: Server FQDN
+          ui: 
+            widget: tags
+            options: 
+              placeholder: "hostame.ds.irsnet.gov"
+
+        extra_vars:
+          title: Optional extra_vars (advanced)
+          description: >
+            Optional JSON object that will be provided to the workflow as user-supplied variables.
+            Example: {"drain": true, "skip_checks": false}. Avoid secrets in extra_vars.
+          type: object
+          default: {}
+          ui:
+            widget: json
+            options:
+              collapsed: true
+          
+        confirm_decommission:
+          title: I confirm these server(s) should be decommissioned and I have Authorization
+          description: This action is destructive. Only check this box if you are authorized to decommission the listed servers.
+          type: boolean
+
+  steps:
+    - id: review_parameters
+      name: Review parameters
+      action: debug:log
+      input:
+        message: ${{ {"summary":"Decommission request summary","requestor":user.entity.spec.profile.email,"contact":user.entity.metadata.name,
+          "timestamp":now(),"server":parameters.servers,"extra_vars":parameters.extra_vars,"confirmation":parameters.confirm_decommission} | dump }}
+
+    - id: call-decomm-workflow
+      name: Call Ansible AAP workflow (decommission)
+      action: http:backstage:request
+      input: 
+        method: "POST"
+        path: /proxy/aap-prod/api/v2/workflow_templates/12345/launch/
+        headers:
+          content-type: "application/json"
+
+        body: |
+          ${{ {
+            "extra_vars": {
+              "servers": parameters.servers, 
+              "request_email": user.entity.spec.profile.email, 
+              "request_seid": user.entity.metadata.name,
+            },
+            "user_extra_vars": parameters.extra_vars,
+          } | dump }}
+          logRequestPath: true
+          continueOnBadResponse: true
