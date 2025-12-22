@@ -1,31 +1,62 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: po-org-backstage-catalog-dump
-  title: PO-Org Backstage Catalog API Dump
+  name: github-repo-query
+  title: GitHub Repo Query
+  description: Enter a repo and get full API response
 spec:
   owner: user:default/c-nell
   type: service
   
+  parameters:
+    - title: Repository Information
+      required:
+        - owner
+        - repo
+      properties:
+        owner:
+          title: Repository Owner
+          type: string
+          description: GitHub username or organization
+          default: po-org
+          
+        repo:
+          title: Repository Name
+          type: string
+          description: Repository name
+          default: backstage-catalog
+  
   steps:
-    - id: call
+    - id: get-repo
+      name: Get Repository
       action: http:backstage:request
       input:
         method: GET
-        path: /proxy/github/repos/po-org/backstage-catalog
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
+        headers:
+          Accept: application/vnd.github.v3+json
     
-    - id: log
+    - id: log-output
+      name: Log Complete Output
       action: debug:log
       input:
         message: |
           ═══════════════════════════════════════════════════════
-          REPO: po-org/backstage-catalog
+          REPOSITORY: ${{ parameters.owner }}/${{ parameters.repo }}
           ═══════════════════════════════════════════════════════
           
-          ${{ steps['call'].output | dump(2) }}
+          Status Code: ${{ steps['get-repo'].output.code }}
+          
+          Response:
+          ${{ steps['get-repo'].output | dump(2) }}
+          
+          ═══════════════════════════════════════════════════════
   
   output:
     text:
-      - title: Complete Output
+      - title: API Response
         content: |
-          ${{ steps['call'].output | dump(2) }}
+          Repository: ${{ parameters.owner }}/${{ parameters.repo }}
+          Status: ${{ steps['get-repo'].output.code }}
+          
+          ${{ steps['get-repo'].output | dump(2) }}
