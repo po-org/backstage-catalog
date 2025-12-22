@@ -1,25 +1,51 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: auto-api-call-tracker
-  title: Automated API Call with Job Tracking
-  description: Automatically make API calls configured in app-config.yaml
+  name: dynamic-api-call
+  title: Dynamic API Call
+  description: Make API calls to any endpoint through the dynamic-api proxy
 spec:
   owner: user:default/c-nell
   type: service
+  
+  parameters:
+    - title: API Request
+      required:
+        - endpoint
+      properties:
+        endpoint:
+          title: API Endpoint
+          type: string
+          description: 'Endpoint path (e.g., /users, /orders/123, /status)'
+          default: '/users'
+          
+        httpMethod:
+          title: HTTP Method
+          type: string
+          enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+          default: GET
+          
+        requestBody:
+          title: Request Body (JSON)
+          type: string
+          description: JSON body for POST/PUT/PATCH requests
+          ui:widget: textarea
+          ui:options:
+            rows: 5
   
   steps:
     - id: make-api-call
       name: Execute API Call
       action: http:backstage:request
       input:
-        method: GET
-        path: /proxy/httpbin/delay/5
+        method: ${{ parameters.httpMethod }}
+        path: /proxy/dynamic-api${{ parameters.endpoint }}
         headers:
           content-type: "application/json"
+        body: ${{ parameters.requestBody }}
     
     - id: log-response
-      name: Log API Response
+      name: Log Response
       action: debug:log
       input:
         message: |
@@ -28,19 +54,21 @@ spec:
           ═══════════════════════════════════════════════════════
           
           📍 Request:
-             • Method: GET
-             • Path: /proxy/httpbin/delay/5
+             • Target: https://api.example.com
+             • Endpoint: ${{ parameters.endpoint }}
+             • Full Path: /proxy/dynamic-api${{ parameters.endpoint }}
+             • Method: ${{ parameters.httpMethod }}
              • Status: ${{ steps['make-api-call'].output.code }}
           
-          📊 Response Body:
+          📊 Response:
           ${{ steps['make-api-call'].output.body | dump(2) }}
           
-          📥 Response Headers:
+          📥 Headers:
           ${{ steps['make-api-call'].output.headers | dump(2) }}
           
           ═══════════════════════════════════════════════════════
     
-    - id: create-catalog-component
+    - id: create-component
       name: Register Component
       action: catalog:write
       input:
@@ -48,18 +76,17 @@ spec:
           apiVersion: backstage.io/v1alpha1
           kind: Component
           metadata:
-            name: api-job-auto-${{ "" | now | replace(":", "-") | replace(".", "-") | lower }}
-            description: Automated API call to httpbin delay endpoint
+            name: api-call-${{ parameters.endpoint | replace("/", "-") | replace("_", "-") | lower }}
+            description: ${{ parameters.httpMethod }} request to ${{ parameters.endpoint }}
             annotations:
               backstage.io/managed-by-location: 'url:generated'
-              api.backstage.io/method: GET
-              api.backstage.io/path: /proxy/httpbin/delay/5
-              api.backstage.io/status-code: '${{ steps["make-api-call"].output.code }}'
-              api.backstage.io/executed-at: ${{ "" | now }}
+              api.backstage.io/endpoint: ${{ parameters.endpoint }}
+              api.backstage.io/method: ${{ parameters.httpMethod }}
+              api.backstage.io/status: '${{ steps["make-api-call"].output.code }}'
+              api.backstage.io/timestamp: ${{ "" | now }}
             tags:
               - api-call
-              - automated
-              - scheduled
+              - dynamic-api
           spec:
             type: service
             lifecycle: experimental
@@ -68,16 +95,14 @@ spec:
   output:
     links:
       - title: 📋 View Component
-        url: ${{ steps['create-catalog-component'].output.entityRef }}
+        url: ${{ steps['create-component'].output.entityRef }}
     
     text:
       - title: ✅ API Call Summary
         content: |
-          Automated API call completed successfully!
-          
-          🔗 Endpoint: GET /proxy/httpbin/delay/5
-          📡 Status Code: ${{ steps['make-api-call'].output.code }}
-          ⏰ Executed At: ${{ "" | now }}
+          Endpoint: ${{ parameters.httpMethod }} ${{ parameters.endpoint }}
+          Status: ${{ steps['make-api-call'].output.code }}
+          Target: https://api.example.com${{ parameters.endpoint }}
           
       - title: 📦 Response Body
         content: |
