@@ -76,37 +76,4 @@ spec:
       
       - title: Stars
         content: ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
-```
 
-## Key Changes:
-
-1. **Changed action from `debug:log` to `debug:log:pretty`**
-2. **Removed the `dump(4)` filter** (doesn't work in Backstage)
-3. **Used proper parameters:**
-   - `title` - Shows as a header
-   - `message` - Optional context message
-   - `data` - The actual data to format
-   - `indent` - Optional (defaults to 2)
-
-## What You'll See in Logs:
-```
-════════════════════════════════════════════════════════════
-📋 REPOSITORY DATA
-════════════════════════════════════════════════════════════
-Full response from GitHub API
-
-{
-  "id": 123456,
-  "name": "backstage-catalog",
-  "full_name": "po-org/backstage-catalog",
-  "owner": {
-    "login": "po-org",
-    "type": "Organization"
-  },
-  "description": "Backstage catalog repository",
-  "stargazers_count": 42,
-  "forks_count": 7,
-  "watchers_count": 42,
-  "html_url": "https://github.com/po-org/backstage-catalog"
-}
-════════════════════════════════════════════════════════════
