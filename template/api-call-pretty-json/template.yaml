@@ -1,0 +1,112 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: github-repo-simple
+  title: GitHub Repo - Simple Output
+spec:
+  owner: user:default/c-nell
+  type: service
+  
+  parameters:
+    - title: Repository
+      required:
+        - owner
+        - repo
+      properties:
+        owner:
+          title: Owner
+          type: string
+          default: po-org
+        repo:
+          title: Repository
+          type: string
+          default: backstage-catalog
+  
+  steps:
+    - id: get-repo
+      name: Get Repository
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
+    
+    # Use your new debug:log:pretty action!
+    - id: log-output
+      name: Log Pretty JSON
+      action: debug:log:pretty
+      input:
+        title: Repository Data
+        message: Full response from GitHub API
+        data: ${{ steps['get-repo'].output.body }}
+    
+    # You can also log specific parts
+    - id: log-metadata
+      name: Log Response Metadata
+      action: debug:log:pretty
+      input:
+        title: Response Metadata
+        data:
+          status: ${{ steps['get-repo'].output.code }}
+          headers: ${{ steps['get-repo'].output.headers }}
+    
+    # Or log just the fields you care about
+    - id: log-summary
+      name: Log Repository Summary
+      action: debug:log:pretty
+      input:
+        title: Repository Summary
+        message: Key information about the repository
+        indent: 4
+        data:
+          name: ${{ steps['get-repo'].output.body.name }}
+          full_name: ${{ steps['get-repo'].output.body.full_name }}
+          owner: ${{ steps['get-repo'].output.body.owner.login }}
+          stars: ${{ steps['get-repo'].output.body.stargazers_count }}
+          forks: ${{ steps['get-repo'].output.body.forks_count }}
+          url: ${{ steps['get-repo'].output.body.html_url }}
+  
+  output:
+    links:
+      - title: View Repository
+        url: ${{ steps['get-repo'].output.body.html_url }}
+    
+    text:
+      - title: Repository Name
+        content: ${{ steps['get-repo'].output.body.full_name }}
+      
+      - title: Stars
+        content: ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
+```
+
+## Key Changes:
+
+1. **Changed action from `debug:log` to `debug:log:pretty`**
+2. **Removed the `dump(4)` filter** (doesn't work in Backstage)
+3. **Used proper parameters:**
+   - `title` - Shows as a header
+   - `message` - Optional context message
+   - `data` - The actual data to format
+   - `indent` - Optional (defaults to 2)
+
+## What You'll See in Logs:
+```
+════════════════════════════════════════════════════════════
+📋 REPOSITORY DATA
+════════════════════════════════════════════════════════════
+Full response from GitHub API
+
+{
+  "id": 123456,
+  "name": "backstage-catalog",
+  "full_name": "po-org/backstage-catalog",
+  "owner": {
+    "login": "po-org",
+    "type": "Organization"
+  },
+  "description": "Backstage catalog repository",
+  "stargazers_count": 42,
+  "forks_count": 7,
+  "watchers_count": 42,
+  "html_url": "https://github.com/po-org/backstage-catalog"
+}
+════════════════════════════════════════════════════════════
