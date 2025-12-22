@@ -38,12 +38,27 @@ spec:
       action: debug:log
       input:
         message: |
-          Job completed!
-          Status: ${{ steps['launch-test-job'].output.code }}
-          Headers: ${{ steps['launch-test-job'].output.headers | dump }}
-          Body: ${{ steps['launch-test-job'].output.body | dump }}
+          ═══════════════════════════════════════════════════════
+          🎯 JOB COMPLETED SUCCESSFULLY
+          ═══════════════════════════════════════════════════════
+          
+          📊 HTTP Status: ${{ steps['launch-test-job'].output.code }}
+          
+          📍 Request Details:
+             • URL: ${{ steps['launch-test-job'].output.body.url }}
+             • Origin IP: ${{ steps['launch-test-job'].output.body.origin }}
+             • Delay: ${{ parameters.delaySeconds }} seconds
+          
+          📥 Request Headers Sent:
+             • Host: ${{ steps['launch-test-job'].output.body.headers.Host }}
+             • User-Agent: ${{ steps['launch-test-job'].output.body.headers['User-Agent'] }}
+             • Content-Type: ${{ steps['launch-test-job'].output.body.headers['Content-Type'] }}
+          
+          📦 Full Response Body:
+          ${{ steps['launch-test-job'].output.body | dump(2) }}
+          
+          ═══════════════════════════════════════════════════════
     
-    # Create catalog-info.yaml content
     - id: create-catalog-info
       name: Create Catalog Info
       action: catalog:write
@@ -53,7 +68,7 @@ spec:
           kind: Component
           metadata:
             name: test-job-${{ parameters.testName | replace(" ", "-") | lower }}
-            description: Test job tracking component
+            description: Test job tracking component - Completed after ${{ parameters.delaySeconds }}s delay
             annotations:
               backstage.io/managed-by-location: 'url:http://example.com/catalog-info.yaml'
               poll.backstage.io/enabled: 'true'
@@ -61,21 +76,48 @@ spec:
               poll.backstage.io/status-path: 'uuid'
               poll.backstage.io/status: 'success'
               poll.backstage.io/completed-at: ${{ "" | now }}
+              httpbin.io/origin-ip: ${{ steps['launch-test-job'].output.body.origin }}
+              httpbin.io/request-url: ${{ steps['launch-test-job'].output.body.url }}
             tags:
               - test
               - job-tracking
+              - httpbin
           spec:
             type: service
             lifecycle: experimental
             owner: user:default/c-nell
-            system: test-system
   
   output:
     links:
-      - title: View Component
+      - title: 📋 View Component in Catalog
         url: ${{ steps['create-catalog-info'].output.entityRef }}
+      - title: 🔗 Test httpbin endpoint again
+        url: https://httpbin.org/delay/${{ parameters.delaySeconds }}
+    
     text:
-      - title: Job Response
+      - title: ✅ Job Summary
         content: |
-          HTTP Status: ${{ steps['launch-test-job'].output.code }}
-          Response Body: ${{ steps['launch-test-job'].output.body | dump }}
+          Test job "${{ parameters.testName }}" completed successfully!
+          
+          ⏱️  Duration: ${{ parameters.delaySeconds }} seconds
+          🌐 Origin IP: ${{ steps['launch-test-job'].output.body.origin }}
+          📡 HTTP Status: ${{ steps['launch-test-job'].output.code }}
+          
+      - title: 📊 API Response Details
+        content: |
+          **Request URL:** 
+          ${{ steps['launch-test-job'].output.body.url }}
+          
+          **Response Headers Received:**
+          • Host: ${{ steps['launch-test-job'].output.body.headers.Host }}
+          • User-Agent: ${{ steps['launch-test-job'].output.body.headers['User-Agent'] }}
+          • Content-Type: ${{ steps['launch-test-job'].output.body.headers['Content-Type'] }}
+          
+          **Origin IP:** ${{ steps['launch-test-job'].output.body.origin }}
+          
+      - title: 🔍 Full JSON Response
+        content: |
+```json
+          ${{ steps['launch-test-job'].output.body | dump(2) }}
+```
+```
