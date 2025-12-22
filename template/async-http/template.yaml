@@ -1,0 +1,67 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: test-job-tracking-httpbin
+  title: Test Job Tracking (httpbin)
+  description: Test async job tracking with httpbin delay endpoint
+spec:
+  owner: user:default/c-nell
+  type: service
+  parameters:
+    - title: Test Configuration
+      required:
+        - testName
+      properties:
+        testName:
+          title: Test Job Name
+          type: string
+          default: my-test-job
+        
+        delaySeconds:
+          title: Job Duration (seconds)
+          type: number
+          default: 10
+          enum: [5, 10, 20, 30]
+  
+  steps:
+    - id: launch-test-job
+      name: Launch Test Job
+      action: http:backstage:request
+      input:
+        method: GET
+        # httpbin/delay simulates a job that takes X seconds
+        path: https://httpbin.org/delay/${{ parameters.delaySeconds }}
+    
+    - id: log-job-response
+      name: Log Response
+      action: debug:log
+      input:
+        message: "Job completed: ${{ steps['launch-test-job'].output.body | dump }}"
+    
+    # Register entity with job tracking
+    - id: register-entity
+      name: Create Component
+      action: catalog:register
+      input:
+        catalogInfoUrl: https://github.com/backstage/backstage/blob/master/catalog-info.yaml
+        optional: true
+    
+    - id: configure-polling
+      name: Add Polling Config
+      action: catalog:write
+      input:
+        entity:
+          apiVersion: backstage.io/v1alpha1
+          kind: Component
+          metadata:
+            name: test-job-${{ parameters.testName | replace(" ", "-") | lower }}
+            annotations:
+              poll.backstage.io/enabled: 'true'
+              poll.backstage.io/url: https://httpbin.org/uuid
+              poll.backstage.io/status-path: 'uuid'
+              poll.backstage.io/status: 'success'
+              poll.backstage.io/completed-at: ${{ "" | now }}
+          spec:
+            type: service
+            lifecycle: production
+            owner: user:default/c-nell
