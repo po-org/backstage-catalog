@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: generic-api-call-tracker
-  title: Generic API Call with Job Tracking
-  description: Make any API call and track it as a component in Backstage
+  name: api-call-from-config
+  title: API Call from App Config
+  description: Make API calls using endpoints defined in app-config.yaml
 spec:
   owner: user:default/c-nell
   type: service
@@ -11,56 +11,67 @@ spec:
     - title: Job Configuration
       required:
         - jobName
+        - apiEndpoint
       properties:
         jobName:
           title: Job Name
           type: string
           description: Name for this API call job
           
-    - title: API Request Details
-      required:
-        - httpMethod
-        - apiPath
-      properties:
+        apiEndpoint:
+          title: API Endpoint
+          type: string
+          description: Which configured endpoint to call
+          enum:
+            - httpbin-delay
+            - httpbin-get
+            - httpbin-post
+            - httpbin-uuid
+            - custom-api-1
+            - custom-api-2
+          enumNames:
+            - 'Httpbin Delay (5s)'
+            - 'Httpbin GET'
+            - 'Httpbin POST'
+            - 'Httpbin UUID'
+            - 'Custom API 1'
+            - 'Custom API 2'
+          
         httpMethod:
           title: HTTP Method
           type: string
           enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
           default: GET
           
-        apiPath:
-          title: API Path
-          type: string
-          description: 'Path to API endpoint (e.g., /proxy/httpbin/get or /api/v1/resource)'
-          
         requestBody:
-          title: Request Body (JSON)
+          title: Request Body (optional)
           type: string
-          description: JSON body for POST/PUT/PATCH requests (leave empty for GET/DELETE)
           ui:widget: textarea
           ui:options:
-            rows: 5
+            rows: 3
             
-    - title: Tracking Options
+    - title: Options
       properties:
         createComponent:
           title: Create Catalog Component
           type: boolean
           default: true
-          description: Register this API call as a component in Backstage
-          
-        componentOwner:
-          title: Component Owner
-          type: string
-          default: user:default/c-nell
   
   steps:
+    - id: fetch-config
+      name: Read API Config
+      action: debug:log
+      input:
+        message: |
+          Reading configuration for endpoint: ${{ parameters.apiEndpoint }}
+          Base URL from config: ${{ apiEndpoints[${{ parameters.apiEndpoint }}].url }}
+    
     - id: make-api-call
       name: Execute API Call
       action: http:backstage:request
       input:
         method: ${{ parameters.httpMethod }}
-        path: ${{ parameters.apiPath }}
+        path: ${{ parameters.apiEndpoint }}
         headers:
           content-type: "application/json"
         body: ${{ parameters.requestBody }}
@@ -75,9 +86,9 @@ spec:
           ═══════════════════════════════════════════════════════
           
           📍 Request:
-             • Method: ${{ parameters.httpMethod }}
-             • Path: ${{ parameters.apiPath }}
-             • Status: ${{ steps['make-api-call'].output.code }}
+             Endpoint: ${{ parameters.apiEndpoint }}
+             Method: ${{ parameters.httpMethod }}
+             Status: ${{ steps['make-api-call'].output.code }}
           
           📊 Response Body:
           ${{ steps['make-api-call'].output.body | dump(2) }}
@@ -97,21 +108,21 @@ spec:
           kind: Component
           metadata:
             name: api-job-${{ parameters.jobName | replace(" ", "-") | lower }}
-            description: API call to ${{ parameters.httpMethod }} ${{ parameters.apiPath }}
+            description: API call to ${{ parameters.apiEndpoint }}
             annotations:
               backstage.io/managed-by-location: 'url:generated'
+              api.backstage.io/endpoint: ${{ parameters.apiEndpoint }}
               api.backstage.io/method: ${{ parameters.httpMethod }}
-              api.backstage.io/path: ${{ parameters.apiPath }}
               api.backstage.io/status-code: '${{ steps["make-api-call"].output.code }}'
               api.backstage.io/executed-at: ${{ "" | now }}
             tags:
               - api-call
               - automated
-              - ${{ parameters.httpMethod | lower }}
+              - ${{ parameters.apiEndpoint }}
           spec:
             type: service
             lifecycle: experimental
-            owner: ${{ parameters.componentOwner }}
+            owner: user:default/c-nell
   
   output:
     links:
@@ -121,15 +132,11 @@ spec:
     text:
       - title: ✅ API Call Summary
         content: |
-          Job "${{ parameters.jobName }}" completed successfully!
-          
-          🔗 Endpoint: ${{ parameters.httpMethod }} ${{ parameters.apiPath }}
-          📡 Status Code: ${{ steps['make-api-call'].output.code }}
+          Job: ${{ parameters.jobName }}
+          Endpoint: ${{ parameters.apiEndpoint }}
+          Method: ${{ parameters.httpMethod }}
+          Status: ${{ steps['make-api-call'].output.code }}
           
       - title: 📦 Response Body
         content: |
           ${{ steps['make-api-call'].output.body | dump(2) }}
-          
-      - title: 📥 Response Headers
-        content: |
-          ${{ steps['make-api-call'].output.headers | dump(2) }}
