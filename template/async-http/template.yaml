@@ -29,26 +29,23 @@ spec:
       action: http:backstage:request
       input:
         method: GET
-        path: /proxy/httpbin
+        path: /proxy/httpbin/delay/${{ parameters.delaySeconds }}
         headers:
           content-type: "application/json"
     
     - id: log-job-response
-      name: Log Response
+      name: Log Full Response
       action: debug:log
       input:
-        message: "Job completed: ${{ steps['launch-test-job'].output.body | dump }}"
+        message: |
+          Job completed!
+          Status: ${{ steps['launch-test-job'].output.code }}
+          Headers: ${{ steps['launch-test-job'].output.headers | dump }}
+          Body: ${{ steps['launch-test-job'].output.body | dump }}
     
-    # Register entity with job tracking
-    - id: register-entity
-      name: Create Component
-      action: catalog:register
-      input:
-        catalogInfoUrl: https://github.com/backstage/backstage/blob/master/catalog-info.yaml
-        optional: true
-    
-    - id: configure-polling
-      name: Add Polling Config
+    # Create catalog-info.yaml content
+    - id: create-catalog-info
+      name: Create Catalog Info
       action: catalog:write
       input:
         entity:
@@ -56,13 +53,29 @@ spec:
           kind: Component
           metadata:
             name: test-job-${{ parameters.testName | replace(" ", "-") | lower }}
+            description: Test job tracking component
             annotations:
+              backstage.io/managed-by-location: 'url:http://example.com/catalog-info.yaml'
               poll.backstage.io/enabled: 'true'
               poll.backstage.io/url: https://httpbin.org/uuid
               poll.backstage.io/status-path: 'uuid'
               poll.backstage.io/status: 'success'
               poll.backstage.io/completed-at: ${{ "" | now }}
+            tags:
+              - test
+              - job-tracking
           spec:
             type: service
-            lifecycle: production
+            lifecycle: experimental
             owner: user:default/c-nell
+            system: test-system
+  
+  output:
+    links:
+      - title: View Component
+        url: ${{ steps['create-catalog-info'].output.entityRef }}
+    text:
+      - title: Job Response
+        content: |
+          HTTP Status: ${{ steps['launch-test-job'].output.code }}
+          Response Body: ${{ steps['launch-test-job'].output.body | dump }}
