@@ -1,123 +1,153 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: test-job-tracking-httpbin
-  title: Test Job Tracking (httpbin)
-  description: Test async job tracking with httpbin delay endpoint
+  name: generic-api-call-tracker
+  title: Generic API Call with Job Tracking
+  description: Make any API call and track it as a component in Backstage
 spec:
   owner: user:default/c-nell
   type: service
   parameters:
-    - title: Test Configuration
+    - title: Job Configuration
       required:
-        - testName
+        - jobName
       properties:
-        testName:
-          title: Test Job Name
+        jobName:
+          title: Job Name
           type: string
-          default: my-test-job
-        
-        delaySeconds:
-          title: Job Duration (seconds)
-          type: number
-          default: 10
-          enum: [5, 10, 20, 30]
+          description: Name for this API call job
+          
+    - title: API Request Details
+      required:
+        - httpMethod
+        - apiPath
+      properties:
+        httpMethod:
+          title: HTTP Method
+          type: string
+          enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+          default: GET
+          
+        apiPath:
+          title: API Path
+          type: string
+          description: 'Path to API endpoint (e.g., /proxy/httpbin/get or /api/v1/resource)'
+          
+        requestBody:
+          title: Request Body (JSON)
+          type: string
+          description: JSON body for POST/PUT/PATCH requests (leave empty for GET/DELETE)
+          ui:widget: textarea
+          ui:options:
+            rows: 5
+          
+        customHeaders:
+          title: Custom Headers (JSON)
+          type: string
+          description: 'Additional headers as JSON object (e.g., {"Authorization": "Bearer token"})'
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+            
+    - title: Tracking Options
+      properties:
+        createComponent:
+          title: Create Catalog Component
+          type: boolean
+          default: true
+          description: Register this API call as a component in Backstage
+          
+        componentOwner:
+          title: Component Owner
+          type: string
+          default: user:default/c-nell
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds:
+              - Group
+              - User
   
   steps:
-    - id: launch-test-job
-      name: Launch Test Job
+    - id: parse-headers
+      name: Parse Custom Headers
+      action: debug:log
+      input:
+        message: "Preparing request with headers: ${{ parameters.customHeaders || '{}' }}"
+    
+    - id: make-api-call
+      name: Execute API Call
       action: http:backstage:request
       input:
-        method: GET
-        path: /proxy/httpbin/delay/${{ parameters.delaySeconds }}
+        method: ${{ parameters.httpMethod }}
+        path: ${{ parameters.apiPath }}
         headers:
           content-type: "application/json"
+          ${{ parameters.customHeaders }}
+        body: ${{ parameters.requestBody }}
     
-    - id: log-job-response
-      name: Log Full Response
+    - id: log-response
+      name: Log API Response
       action: debug:log
       input:
         message: |
           ═══════════════════════════════════════════════════════
-          🎯 JOB COMPLETED SUCCESSFULLY
+          🎯 API CALL COMPLETED
           ═══════════════════════════════════════════════════════
           
-          📊 HTTP Status: ${{ steps['launch-test-job'].output.code }}
+          📍 Request:
+             • Method: ${{ parameters.httpMethod }}
+             • Path: ${{ parameters.apiPath }}
+             • Status: ${{ steps['make-api-call'].output.code }}
           
-          📍 Request Details:
-             • URL: ${{ steps['launch-test-job'].output.body.url }}
-             • Origin IP: ${{ steps['launch-test-job'].output.body.origin }}
-             • Delay: ${{ parameters.delaySeconds }} seconds
-          
-          📥 Request Headers Sent:
-             • Host: ${{ steps['launch-test-job'].output.body.headers.Host }}
-             • User-Agent: ${{ steps['launch-test-job'].output.body.headers['User-Agent'] }}
-             • Content-Type: ${{ steps['launch-test-job'].output.body.headers['Content-Type'] }}
-          
-          📦 Full Response Body:
-          ${{ steps['launch-test-job'].output.body | dump(2) }}
+          📊 Response:
+          ${{ steps['make-api-call'].output.body | dump(2) }}
           
           ═══════════════════════════════════════════════════════
     
-    - id: create-catalog-info
-      name: Create Catalog Info
+    - id: create-catalog-component
+      name: Register Component
+      if: ${{ parameters.createComponent }}
       action: catalog:write
       input:
         entity:
           apiVersion: backstage.io/v1alpha1
           kind: Component
           metadata:
-            name: test-job-${{ parameters.testName | replace(" ", "-") | lower }}
-            description: Test job tracking component - Completed after ${{ parameters.delaySeconds }}s delay
+            name: api-job-${{ parameters.jobName | replace(" ", "-") | lower }}
+            description: API call to ${{ parameters.httpMethod }} ${{ parameters.apiPath }}
             annotations:
-              backstage.io/managed-by-location: 'url:http://example.com/catalog-info.yaml'
-              poll.backstage.io/enabled: 'true'
-              poll.backstage.io/url: https://httpbin.org/uuid
-              poll.backstage.io/status-path: 'uuid'
-              poll.backstage.io/status: 'success'
-              poll.backstage.io/completed-at: ${{ "" | now }}
-              httpbin.io/origin-ip: ${{ steps['launch-test-job'].output.body.origin }}
-              httpbin.io/request-url: ${{ steps['launch-test-job'].output.body.url }}
+              backstage.io/managed-by-location: 'url:generated'
+              api.backstage.io/method: ${{ parameters.httpMethod }}
+              api.backstage.io/path: ${{ parameters.apiPath }}
+              api.backstage.io/status-code: ${{ steps['make-api-call'].output.code }}
+              api.backstage.io/executed-at: ${{ "" | now }}
             tags:
-              - test
-              - job-tracking
-              - httpbin
+              - api-call
+              - automated
+              - ${{ parameters.httpMethod | lower }}
           spec:
             type: service
             lifecycle: experimental
-            owner: user:default/c-nell
+            owner: ${{ parameters.componentOwner }}
   
   output:
     links:
-      - title: 📋 View Component in Catalog
-        url: ${{ steps['create-catalog-info'].output.entityRef }}
-      - title: 🔗 Test httpbin endpoint again
-        url: https://httpbin.org/delay/${{ parameters.delaySeconds }}
+      - title: 📋 View Component
+        url: ${{ steps['create-catalog-component'].output.entityRef }}
+        icon: catalog
     
     text:
-      - title: ✅ Job Summary
+      - title: ✅ API Call Summary
         content: |
-          Test job "${{ parameters.testName }}" completed successfully!
+          Job "${{ parameters.jobName }}" completed successfully!
           
-          ⏱️  Duration: ${{ parameters.delaySeconds }} seconds
-          🌐 Origin IP: ${{ steps['launch-test-job'].output.body.origin }}
-          📡 HTTP Status: ${{ steps['launch-test-job'].output.code }}
+          🔗 Endpoint: ${{ parameters.httpMethod }} ${{ parameters.apiPath }}
+          📡 Status Code: ${{ steps['make-api-call'].output.code }}
           
-      - title: 📊 API Response Details
+      - title: 📦 Response Body
         content: |
-          **Request URL:** 
-          ${{ steps['launch-test-job'].output.body.url }}
+          ${{ steps['make-api-call'].output.body | dump(2) }}
           
-          **Response Headers Received:**
-          • Host: ${{ steps['launch-test-job'].output.body.headers.Host }}
-          • User-Agent: ${{ steps['launch-test-job'].output.body.headers['User-Agent'] }}
-          • Content-Type: ${{ steps['launch-test-job'].output.body.headers['Content-Type'] }}
-          
-          **Origin IP:** ${{ steps['launch-test-job'].output.body.origin }}
-          
-      - title: 🔍 Full JSON Response
+      - title: 📥 Response Headers
         content: |
-```json
-          ${{ steps['launch-test-job'].output.body | dump(2) }}
-```
-```
+          ${{ steps['make-api-call'].output.headers | dump(2) }}
