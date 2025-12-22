@@ -29,8 +29,8 @@ spec:
       action: http:backstage:request
       input:
         method: GET
-        # httpbin/delay simulates a job that takes X seconds
-        path: https://httpbin.org/delay/${{ parameters.delaySeconds }}
+        baseUrl: https://httpbin.org
+        path: /delay/${{ parameters.delaySeconds }}
     
     - id: log-job-response
       name: Log Response
