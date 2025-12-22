@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: github-repo-pretty-json-output
-  title: GitHub Repo - Simple Output
+  title: GitHub Repo - Pretty Json Output
 spec:
   owner: user:default/c-nell
   type: service
