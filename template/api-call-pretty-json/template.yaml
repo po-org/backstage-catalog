@@ -30,7 +30,6 @@ spec:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
     
-    # Use your new debug:log:pretty action!
     - id: log-output
       name: Log Pretty JSON
       action: debug:log:pretty
@@ -39,7 +38,6 @@ spec:
         message: Full response from GitHub API
         data: ${{ steps['get-repo'].output.body }}
     
-    # You can also log specific parts
     - id: log-metadata
       name: Log Response Metadata
       action: debug:log:pretty
@@ -49,7 +47,6 @@ spec:
           status: ${{ steps['get-repo'].output.code }}
           headers: ${{ steps['get-repo'].output.headers }}
     
-    # Or log just the fields you care about
     - id: log-summary
       name: Log Repository Summary
       action: debug:log:pretty
@@ -66,14 +63,16 @@ spec:
           url: ${{ steps['get-repo'].output.body.html_url }}
   
   output:
+    # Existing repository info
     links:
       - title: View Repository
         url: ${{ steps['get-repo'].output.body.html_url }}
+      # Add link to the pretty JSON output
+      - title: Debug JSON Output
+        url: ${{ steps.log-output.output.filePath }}
     
     text:
       - title: Repository Name
         content: ${{ steps['get-repo'].output.body.full_name }}
-      
       - title: Stars
         content: ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
-
