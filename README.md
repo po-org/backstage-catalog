@@ -21,6 +21,7 @@ Think of this as the **directory + map** of our internal tech landscape.
 ---
 
 ## 🧱 Repository Structure
+```
 ├── api/ # API entities
 ├── component/ # Services, libraries, jobs, websites
 ├── domain/ # Business and technical domains
@@ -31,7 +32,7 @@ Think of this as the **directory + map** of our internal tech landscape.
 ├── template/ # Backstage scaffolder templates
 ├── user/ # Users (if managed via catalog)
 └── README.md
-
+```
 
 Each directory contains one or more `*.yaml` files defining Backstage entities.
 
