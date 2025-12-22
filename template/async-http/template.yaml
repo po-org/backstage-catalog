@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-repo-detailed
-  title: GitHub Repo - Detailed Info
+  name: github-repo-simple
+  title: GitHub Repo - Simple Output
 spec:
   owner: user:default/c-nell
   type: service
@@ -23,7 +23,6 @@ spec:
           default: backstage-catalog
   
   steps:
-    # 1. Get Repository Details
     - id: get-repo
       name: Get Repository
       action: http:backstage:request
@@ -31,167 +30,17 @@ spec:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
     
-    # 2. Get Languages
-    - id: get-languages
-      name: Get Languages
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/languages
-    
-    # 3. Get Recent Commits
-    - id: get-commits
-      name: Get Recent Commits
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/commits?per_page=5
-    
-    # 4. Get Contributors
-    - id: get-contributors
-      name: Get Contributors
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/contributors?per_page=10
-    
-    # 5. Get Branches
-    - id: get-branches
-      name: Get Branches
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/branches
-    
-    # 6. Get Issues
-    - id: get-issues
-      name: Get Open Issues
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/issues?state=open&per_page=10
-    
-    # 7. Get Pull Requests
-    - id: get-prs
-      name: Get Pull Requests
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/pulls?state=all&per_page=10
-    
-    # 8. Get Releases
-    - id: get-releases
-      name: Get Releases
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/releases?per_page=5
-    
-    # 9. Get Topics/Tags
-    - id: get-topics
-      name: Get Topics
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/topics
-    
-    # 10. Get README
-    - id: get-readme
-      name: Get README
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/readme
-    
-    # Log Everything
-    - id: log-all
-      name: Log All Data
+    - id: log-output
+      name: Log Output
       action: debug:log
       input:
         message: |
-          ═══════════════════════════════════════════════════════
-          📦 REPOSITORY: ${{ parameters.owner }}/${{ parameters.repo }}
-          ═══════════════════════════════════════════════════════
-          
-          🏷️  BASIC INFO:
-          ${{ steps['get-repo'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          💻 LANGUAGES:
-          ${{ steps['get-languages'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          📝 RECENT COMMITS:
-          ${{ steps['get-commits'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          👥 CONTRIBUTORS:
-          ${{ steps['get-contributors'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          🌿 BRANCHES:
-          ${{ steps['get-branches'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          🐛 OPEN ISSUES:
-          ${{ steps['get-issues'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          🔀 PULL REQUESTS:
-          ${{ steps['get-prs'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          🚀 RELEASES:
-          ${{ steps['get-releases'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          🏷️  TOPICS:
-          ${{ steps['get-topics'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
-          📄 README:
-          ${{ steps['get-readme'].output.body | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
+          ${{ steps['get-repo'].output.body | dump(4) }}
   
   output:
     text:
-      - title: 📦 Repository Info
+      - title: Repository Data
         content: |
-          ${{ steps['get-repo'].output.body | dump(2) }}
-          
-      - title: 💻 Languages
-        content: |
-          ${{ steps['get-languages'].output.body | dump(2) }}
-          
-      - title: 📝 Recent Commits
-        content: |
-          ${{ steps['get-commits'].output.body | dump(2) }}
-          
-      - title: 👥 Contributors
-        content: |
-          ${{ steps['get-contributors'].output.body | dump(2) }}
-          
-      - title: 🌿 Branches
-        content: |
-          ${{ steps['get-branches'].output.body | dump(2) }}
-          
-      - title: 🐛 Open Issues
-        content: |
-          ${{ steps['get-issues'].output.body | dump(2) }}
-          
-      - title: 🔀 Pull Requests
-        content: |
-          ${{ steps['get-prs'].output.body | dump(2) }}
-          
-      - title: 🚀 Releases
-        content: |
-          ${{ steps['get-releases'].output.body | dump(2) }}
-          
-      - title: 🏷️ Topics
-        content: |
-          ${{ steps['get-topics'].output.body | dump(2) }}
-          
-      - title: 📄 README
-        content: |
-          ${{ steps['get-readme'].output.body | dump(2) }}
+```json
+          ${{ steps['get-repo'].output.body | dump(4) }}
+```
