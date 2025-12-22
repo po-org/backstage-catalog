@@ -1,29 +1,31 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: api-dump
-  title: API Call - Full Dump
+  name: po-org-backstage-catalog-dump
+  title: PO-Org Backstage Catalog API Dump
 spec:
   owner: user:default/c-nell
   type: service
   
   steps:
-    - id: call-api
-      name: Call API
+    - id: call
       action: http:backstage:request
       input:
         method: GET
-        path: /proxy/github/repos/backstage/backstage
+        path: /proxy/github/repos/po-org/backstage-catalog
     
-    - id: dump
-      name: Dump Everything
+    - id: log
       action: debug:log
       input:
         message: |
-          ${{ steps['call-api'].output | dump(2) }}
+          ═══════════════════════════════════════════════════════
+          REPO: po-org/backstage-catalog
+          ═══════════════════════════════════════════════════════
+          
+          ${{ steps['call'].output | dump(2) }}
   
   output:
     text:
-      - title: Raw Output
+      - title: Complete Output
         content: |
-          ${{ steps['call-api'].output | dump(2) }}
+          ${{ steps['call'].output | dump(2) }}
