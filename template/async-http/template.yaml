@@ -1,62 +1,27 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-repo-query
-  title: GitHub Repo Query
-  description: Enter a repo and get full API response
+  name: test-github-proxy
+  title: Test GitHub Proxy
 spec:
   owner: user:default/c-nell
   type: service
   
-  parameters:
-    - title: Repository Information
-      required:
-        - owner
-        - repo
-      properties:
-        owner:
-          title: Repository Owner
-          type: string
-          description: GitHub username or organization
-          default: po-org
-          
-        repo:
-          title: Repository Name
-          type: string
-          description: Repository name
-          default: backstage-catalog
-  
   steps:
-    - id: get-repo
-      name: Get Repository
+    - id: test
       action: http:backstage:request
       input:
         method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
-        headers:
-          Accept: application/vnd.github.v3+json
+        path: /proxy/github
     
-    - id: log-output
-      name: Log Complete Output
+    - id: log
       action: debug:log
       input:
         message: |
-          ═══════════════════════════════════════════════════════
-          REPOSITORY: ${{ parameters.owner }}/${{ parameters.repo }}
-          ═══════════════════════════════════════════════════════
-          
-          Status Code: ${{ steps['get-repo'].output.code }}
-          
-          Response:
-          ${{ steps['get-repo'].output | dump(2) }}
-          
-          ═══════════════════════════════════════════════════════
+          ${{ steps['test'].output | dump(2) }}
   
   output:
     text:
-      - title: API Response
+      - title: Output
         content: |
-          Repository: ${{ parameters.owner }}/${{ parameters.repo }}
-          Status: ${{ steps['get-repo'].output.code }}
-          
-          ${{ steps['get-repo'].output | dump(2) }}
+          ${{ steps['test'].output | dump(2) }}
