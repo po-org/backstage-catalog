@@ -41,6 +41,4 @@ spec:
     text:
       - title: Repository Data
         content: |
-```json
           ${{ steps['get-repo'].output.body | dump(4) }}
-```
