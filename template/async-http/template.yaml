@@ -29,8 +29,9 @@ spec:
       action: http:backstage:request
       input:
         method: GET
-        baseUrl: https://httpbin.org
-        path: /delay/${{ parameters.delaySeconds }}
+        path: /proxy/httpbin
+        headers:
+          content-type: "application/json"
     
     - id: log-job-response
       name: Log Response
