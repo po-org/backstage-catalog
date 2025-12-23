@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-repo-simple
-  title: GitHub Repo - Simple Output
+  name: github-repo-comprehensive
+  title: GitHub Repo - Comprehensive Data
 spec:
   owner: user:default/c-nell
   type: service
@@ -24,27 +24,105 @@ spec:
   
   steps:
     - id: get-repo
-      name: Get Repository
+      name: Get Repository Details
       action: http:backstage:request
       input:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
     
+    - id: get-branches
+      name: Get Branches
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/branches
+    
+    - id: get-commits
+      name: Get Recent Commits
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/commits?per_page=10
+    
+    - id: get-contributors
+      name: Get Contributors
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/contributors
+    
+    - id: get-languages
+      name: Get Languages
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/languages
+    
+    - id: get-releases
+      name: Get Releases
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/releases
+    
+    - id: get-pulls
+      name: Get Pull Requests
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/pulls?state=all&per_page=10
+    
+    - id: get-issues
+      name: Get Issues
+      action: http:backstage:request
+      input:
+        method: GET
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/issues?state=all&per_page=10
+    
     - id: log-output
-      name: Log Pretty JSON
+      name: Log All Data
       action: debug:log
       input:
         message: |
           ═══════════════════════════════════════════════════════
-          📦 REPOSITORY DATA (Pretty Formatted)
+          📦 REPOSITORY COMPREHENSIVE DATA
           ═══════════════════════════════════════════════════════
           
+          🏷️  REPOSITORY DETAILS:
           ${{ steps['get-repo'].output.body | dump(4) }}
+          
+          🌿 BRANCHES:
+          ${{ steps['get-branches'].output.body | dump(4) }}
+          
+          💻 LANGUAGES:
+          ${{ steps['get-languages'].output.body | dump(4) }}
+          
+          👥 CONTRIBUTORS:
+          ${{ steps['get-contributors'].output.body | dump(4) }}
+          
+          📝 RECENT COMMITS:
+          ${{ steps['get-commits'].output.body | dump(4) }}
+          
+          🚀 RELEASES:
+          ${{ steps['get-releases'].output.body | dump(4) }}
+          
+          🔀 PULL REQUESTS:
+          ${{ steps['get-pulls'].output.body | dump(4) }}
+          
+          🐛 ISSUES:
+          ${{ steps['get-issues'].output.body | dump(4) }}
           
           ═══════════════════════════════════════════════════════
   
   output:
     text:
-      - title: Repository Data
+      - title: Repository Summary
+        content: |
+          Repository: ${{ steps['get-repo'].output.body.full_name }}
+          Stars: ${{ steps['get-repo'].output.body.stargazers_count }}
+          Forks: ${{ steps['get-repo'].output.body.forks_count }}
+          Open Issues: ${{ steps['get-repo'].output.body.open_issues_count }}
+          
+      - title: All Data (JSON)
         content: |
           ${{ steps['get-repo'].output.body | dump(4) }}
