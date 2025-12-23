@@ -48,14 +48,11 @@ spec:
     links:
       - title: View Repository
         url: ${{ steps['get-repo'].output.body.html_url }}
-    
     text:
       - title: Repository Name
         content: ${{ steps['get-repo'].output.body.full_name }}
-      
       - title: Stars
         content: ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
-      
       - title: Repository Summary (Table)
         content: |
           | Property | Value |
@@ -66,8 +63,7 @@ spec:
           | Stars | ⭐ ${{ steps['get-repo'].output.body.stargazers_count }} |
           | Forks | 🍴 ${{ steps['get-repo'].output.body.forks_count }} |
           | URL | ${{ steps['get-repo'].output.body.html_url }} |
-      
-      - title: Repository Summary (JSON Code Block)
+      - title: Repository Summary (JSON)
         content: |
 ```json
           ${{ steps['get-repo'].output.body | dump(2) }}
