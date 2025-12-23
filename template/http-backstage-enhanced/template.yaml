@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: http-advanced-github-repo
   title: HTTP Advanced – GitHub Repository Fetch
-  description: Fetch a GitHub repository using the advanced HTTP action via the proxy
+  description: Fetch a GitHub repository using the advanced HTTP action and output structured JSON
 spec:
   owner: user:default/c-nell
   type: service
@@ -12,27 +12,39 @@ spec:
     - title: GitHub Repository
       required:
         - owner
-        - repoName
+        - repo
       properties:
         owner:
           title: Repository Owner
           type: string
-          description: GitHub username or org (e.g., backstage)
-        repoName:
-          title: Repository
+          description: GitHub username or organization (e.g., backstage)
+        repo:
+          title: Repository Name
           type: string
           description: Repository name (e.g., backstage)
 
   steps:
+    # -------------------------------------------------------
+    # 1. Fetch GitHub repository using advanced HTTP action
+    # -------------------------------------------------------
     - id: fetchRepo
       name: Fetch GitHub Repository
       action: http:advanced:request
       input:
         method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
-        headers:
-          content-type: "application/json"
-          Accept: "application/vnd.github.v3+json"
+        url: https://api.github.com/repos/${{ parameters.owner }}/${{ parameters.repo }}
+        auth:
+          type: bearer
+          token: ${{ secrets.GITHUB_TOKEN }}
         retry:
           enabled: true
           maxRetries: 3
+
+    # -------------------------------------------------------
+    # 2. Show JSON output automatically
+    # -------------------------------------------------------
+    - id: showJson
+      name: Show JSON Output
+      action: debug:log
+      input:
+        message: ${{ steps.fetchRepo.output.prettyJson }}
