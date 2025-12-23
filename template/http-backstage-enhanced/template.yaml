@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: http-advanced-pretty-json
-  title: HTTP Advanced – Pretty JSON Output
-  description: Call an API using the advanced HTTP action and render pretty JSON
+  name: http-advanced-github-repo
+  title: HTTP Advanced – GitHub Repository Fetch
+  description: Fetch a GitHub repository using the advanced HTTP action and output structured JSON
 spec:
   owner: user:default/c-nell
   type: service
@@ -17,12 +17,11 @@ spec:
           title: Repository
           type: string
           description: org/repo (e.g. backstage/backstage)
-          default: backstage
 
-    # -------------------------------------------------------
-    # 1. Call your advanced HTTP action
-    # -------------------------------------------------------
   steps:
+    # -------------------------------------------------------
+    # 1. Fetch GitHub repository using advanced HTTP action
+    # -------------------------------------------------------
     - id: fetchRepo
       name: Fetch GitHub Repository
       action: http:advanced:request
@@ -35,11 +34,12 @@ spec:
         retry:
           enabled: true
           maxRetries: 3
-  
-    - id: showOutput
-      name: Show JSON Output
-      action: debug:log
-      input:
-        message: ${{ steps.fetchRepo.output.prettyJson }}
+        # Optional polling annotation, uncomment if needed
+        # polling:
+        #   enabled: true
+        #   intervalMs: 5000
+        #   timeoutMs: 60000
 
-
+  output:
+    # Automatically expose the structured JSON produced by the action
+    prettyJson: ${{ steps.fetchRepo.output.prettyJson }}
