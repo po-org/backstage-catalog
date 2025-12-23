@@ -61,5 +61,8 @@ spec:
           | Stars | ⭐ ${{ steps['get-repo'].output.body.stargazers_count }} |
           | Forks | 🍴 ${{ steps['get-repo'].output.body.forks_count }} |
           | URL | ${{ steps['get-repo'].output.body.html_url }} |
-      - title: Repository Summary (JSON)
-        content: ${{ steps['get-repo'].output.body | dump(2) }}
+      - title: Repository Summary (JSON Code Block)
+        content: |
+```
+          ${{ steps['get-repo'].output.body | dump(2) }}
+```
