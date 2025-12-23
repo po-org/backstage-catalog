@@ -24,7 +24,7 @@ spec:
     # -------------------------------------------------------
     - id: fetchRepo
       name: Fetch GitHub Repository
-      action: http:backstage:request:advanced
+      action: http:advanced:request
       input:
         method: GET
         url: https://api.github.com/repos/${{ parameters.repo }}
