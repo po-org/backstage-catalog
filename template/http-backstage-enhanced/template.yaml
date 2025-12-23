@@ -39,3 +39,8 @@ spec:
         #   enabled: true
         #   intervalMs: 5000
         #   timeoutMs: 60000
+    - id: showJson
+      name: Show JSON Output
+      action: debug:log
+      input:
+        message: ${{ steps.fetchRepo.output.prettyJson }}
