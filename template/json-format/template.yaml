@@ -28,7 +28,6 @@ spec:
       input:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
-    
     - id: log-summary
       name: Log Repository Summary
       action: debug:log
@@ -43,7 +42,6 @@ spec:
             "forks": ${{ steps['get-repo'].output.body.forks_count }},
             "url": "${{ steps['get-repo'].output.body.html_url }}"
           }
-  
   output:
     links:
       - title: View Repository
@@ -64,7 +62,8 @@ spec:
           | Forks | 🍴 ${{ steps['get-repo'].output.body.forks_count }} |
           | URL | ${{ steps['get-repo'].output.body.html_url }} |
       - title: Repository Summary (JSON)
-        content: |
-```json
+        content: >-
+````json
+          
           ${{ steps['get-repo'].output.body | dump(2) }}
-```
+````
