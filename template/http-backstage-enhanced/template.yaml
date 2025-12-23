@@ -17,24 +17,29 @@ spec:
           title: Repository
           type: string
           description: org/repo (e.g. backstage/backstage)
+          default: backstage
 
-  steps:
     # -------------------------------------------------------
     # 1. Call your advanced HTTP action
     # -------------------------------------------------------
+  steps:
     - id: fetchRepo
       name: Fetch GitHub Repository
       action: http:advanced:request
       input:
         method: GET
         url: https://api.github.com/repos/${{ parameters.repo }}
-        responseType: json
         auth:
           type: bearer
           token: ${{ secrets.GITHUB_TOKEN }}
         retry:
           enabled: true
           maxRetries: 3
-        verbose: true
+  
+    - id: showOutput
+      name: Show JSON Output
+      action: debug:log
+      input:
+        text: ${{ steps.fetchRepo.output.prettyJson }}
 
 
