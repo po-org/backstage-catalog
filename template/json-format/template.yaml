@@ -7,6 +7,7 @@ metadata:
 spec:
   owner: user:default/c-nell
   type: service
+
   parameters:
     - title: Repository
       required:
@@ -21,6 +22,7 @@ spec:
           title: Repository
           type: string
           default: backstage-catalog
+
   steps:
     - id: get-repo
       name: Get Repository
@@ -28,6 +30,7 @@ spec:
       input:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
+
     - id: log-output
       name: Log Pretty JSON
       action: debug:log:pretty
@@ -35,6 +38,7 @@ spec:
         title: Repository Data
         message: Full response from GitHub API
         data: ${{ steps['get-repo'].output.body }}
+
     - id: log-metadata
       name: Log Response Metadata
       action: debug:log:pretty
@@ -43,6 +47,7 @@ spec:
         data:
           status: ${{ steps['get-repo'].output.code }}
           headers: ${{ steps['get-repo'].output.headers }}
+
     - id: log-summary
       name: Log Repository Summary
       action: debug:log:pretty
@@ -57,26 +62,32 @@ spec:
           stars: ${{ steps['get-repo'].output.body.stargazers_count }}
           forks: ${{ steps['get-repo'].output.body.forks_count }}
           url: ${{ steps['get-repo'].output.body.html_url }}
+
   output:
     links:
       - title: View Repository
         url: ${{ steps['get-repo'].output.body.html_url }}
+      - title: Debug JSON Output
+        url: ${{ steps.log-output.output.filePath }}
+
     text:
       - title: Repository Name
         content: |
-          ${{ steps['get-repo'].output.body.full_name }}
+          {{ steps['get-repo'].output.body.full_name }}
+
       - title: Stars
         content: |
-          ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
+          ⭐ {{ steps['get-repo'].output.body.stargazers_count }}
+
       - title: Repository Summary
         content: |
-```json
+          ```json
           {
-            "name": "${{ steps['get-repo'].output.body.name }}",
-            "full_name": "${{ steps['get-repo'].output.body.full_name }}",
-            "owner": "${{ steps['get-repo'].output.body.owner.login }}",
-            "stars": ${{ steps['get-repo'].output.body.stargazers_count }},
-            "forks": ${{ steps['get-repo'].output.body.forks_count }},
-            "url": "${{ steps['get-repo'].output.body.html_url }}"
+            "name": "{{ steps['get-repo'].output.body.name }}",
+            "full_name": "{{ steps['get-repo'].output.body.full_name }}",
+            "owner": "{{ steps['get-repo'].output.body.owner.login }}",
+            "stars": {{ steps['get-repo'].output.body.stargazers_count }},
+            "forks": {{ steps['get-repo'].output.body.forks_count }},
+            "url": "{{ steps['get-repo'].output.body.html_url }}"
           }
-```
+          ```
