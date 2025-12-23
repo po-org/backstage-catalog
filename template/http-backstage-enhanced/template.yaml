@@ -33,7 +33,6 @@ spec:
         retry:
           enabled: true
           maxRetries: 3
-```
   output:
     text:
       - title: Repository JSON
