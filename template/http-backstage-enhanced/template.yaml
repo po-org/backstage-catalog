@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: http-advanced-github-repo
   title: HTTP Advanced – GitHub Repository Fetch
-  description: Fetch a GitHub repository using the advanced HTTP action and get structured pretty JSON output
+  description: Fetch a GitHub repository using the advanced HTTP action via the proxy
 spec:
   owner: user:default/c-nell
   type: service
@@ -11,17 +11,17 @@ spec:
   parameters:
     - title: GitHub Repository
       required:
+        - repoName
         - owner
-        - repo
       properties:
         owner:
           title: Repository Owner
           type: string
-          description: GitHub org or user (e.g. backstage)
-        repo:
+          description: GitHub organization or user
+        repoName:
           title: Repository Name
           type: string
-          description: Repository name (e.g. backstage)
+          description: Repository name
 
   steps:
     - id: fetchRepo
@@ -29,14 +29,10 @@ spec:
       action: http:advanced:request
       input:
         method: GET
-        url: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
+        # Use the proxy path instead of absolute URL
+        url: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
-          Accept: "application/vnd.github.v3+json"
-        # Optional polling for long-running APIs
-        # polling:
-        #   enabled: true
-        #   intervalMs: 5000
-        #   timeoutMs: 60000
+          Accept: application/vnd.github.v3+json
         retry:
           enabled: true
           maxRetries: 3
