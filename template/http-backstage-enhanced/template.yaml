@@ -35,7 +35,6 @@ spec:
           maxRetries: 3
   output:
     text:
-      - title: Repository JSON
+      - title: Full Response
         content: |
-          Repo full name: ${{ steps.fetchRepo.output.httpResponse.data.full_name }}
-          Stars: ${{ steps.fetchRepo.output.httpResponse.data.stargazers_count }}
+          ${{ steps.fetchRepo.output.httpResponse | toJson }}
