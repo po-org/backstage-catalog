@@ -42,7 +42,7 @@ spec:
 
     - id: get-repo
       name: Fetch GitHub Repo
-      action: http:backstage:request
+      action: http:advanced:request
       input:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
