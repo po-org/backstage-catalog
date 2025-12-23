@@ -11,12 +11,17 @@ spec:
   parameters:
     - title: GitHub Repository
       required:
+        - owner
         - repo
       properties:
-        repo:
-          title: Repository
+        owner:
+          title: Repository Owner
           type: string
-          description: org/repo (e.g. backstage/backstage)
+          description: GitHub username or organization (e.g., backstage)
+        repo:
+          title: Repository Name
+          type: string
+          description: Repository name (e.g., backstage)
 
   steps:
     # -------------------------------------------------------
@@ -27,18 +32,17 @@ spec:
       action: http:advanced:request
       input:
         method: GET
-        url: https://api.github.com/repos/${{ parameters.repo }}
+        url: https://api.github.com/repos/${{ parameters.owner }}/${{ parameters.repo }}
         auth:
           type: bearer
           token: ${{ secrets.GITHUB_TOKEN }}
         retry:
           enabled: true
           maxRetries: 3
-        # Optional polling annotation, uncomment if needed
-        # polling:
-        #   enabled: true
-        #   intervalMs: 5000
-        #   timeoutMs: 60000
+
+    # -------------------------------------------------------
+    # 2. Show JSON output automatically
+    # -------------------------------------------------------
     - id: showJson
       name: Show JSON Output
       action: debug:log
