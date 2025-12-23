@@ -1,88 +1,39 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-repo-viewer
-  title: GitHub Repository Viewer
-  description: View detailed GitHub repository information
+  name: http-advanced-test
+  title: HTTP Advanced Action Test
+  description: Calls the GitHub API using the advanced HTTP action
 spec:
-  owner: user:default/c-nell
+  owner: user:default/cnell
   type: service
-  
+
   parameters:
-    - title: Repository Details
-      required: [owner, repo]
+    - title: GitHub Repo Info
+      required:
+        - repo
       properties:
-        owner:
-          title: Repository Owner
-          type: string
-          description: GitHub username or organization
-          default: backstage
         repo:
-          title: Repository Name
+          title: Repository
           type: string
-          description: Repository name
-          default: backstage
-  
+          description: org/repo (e.g. backstage/backstage)
+
   steps:
-    # Fetch repository data
-    - id: fetch-repo
-      name: Fetch Repository
+    - id: fetchRepo
+      name: Fetch GitHub Repository
       action: http:backstage:request:advanced
       input:
-        url: https://api.github.com/repos/${{ parameters.owner }}/${{ parameters.repo }}
         method: GET
-        retry:
-          enabled: true
-          maxRetries: 3
-          retryDelay: 2000
-    
-    # Display formatted output
-    - id: display
-      name: Display Results
-      action: debug:log
-      input:
-        message: |
-          
-          ═══════════════════════════════════════════════════════════════
-                        GITHUB REPOSITORY INFORMATION
-          ═══════════════════════════════════════════════════════════════
-          
-          📦 BASIC INFO
-             Name:        ${{ steps['fetch-repo'].output.httpResponse.data.name }}
-             Full Name:   ${{ steps['fetch-repo'].output.httpResponse.data.full_name }}
-             Owner:       ${{ steps['fetch-repo'].output.httpResponse.data.owner.login }}
-             Description: ${{ steps['fetch-repo'].output.httpResponse.data.description || 'None' }}
-          
-          🔗 LINKS
-             GitHub:      ${{ steps['fetch-repo'].output.httpResponse.data.html_url }}
-             Clone:       ${{ steps['fetch-repo'].output.httpResponse.data.clone_url }}
-             Homepage:    ${{ steps['fetch-repo'].output.httpResponse.data.homepage || 'None' }}
-          
-          📊 STATS
-             ⭐ Stars:     ${{ steps['fetch-repo'].output.httpResponse.data.stargazers_count }}
-             🍴 Forks:     ${{ steps['fetch-repo'].output.httpResponse.data.forks_count }}
-             👁️  Watchers:  ${{ steps['fetch-repo'].output.httpResponse.data.watchers_count }}
-             🐛 Issues:    ${{ steps['fetch-repo'].output.httpResponse.data.open_issues_count }}
-          
-          💻 TECH
-             Language:    ${{ steps['fetch-repo'].output.httpResponse.data.language || 'N/A' }}
-             Branch:      ${{ steps['fetch-repo'].output.httpResponse.data.default_branch }}
-             License:     ${{ steps['fetch-repo'].output.httpResponse.data.license.name || 'None' }}
-             Size:        ${{ steps['fetch-repo'].output.httpResponse.data.size }} KB
-          
-          ⚡ REQUEST INFO
-             Status:      ${{ steps['fetch-repo'].output.httpResponse.summary.status }}
-             Duration:    ${{ steps['fetch-repo'].output.httpResponse.summary.durationMs }}ms
-             Success:     ${{ steps['fetch-repo'].output.httpResponse.summary.success }}
-          
-          ═══════════════════════════════════════════════════════════════
-  
+        url: https://api.github.com/repos/${{ parameters.repo }}
+        responseType: json
+        verbose: true
+        auth:
+          type: bearer
+          token: ${{ secrets.githubToken }}
+
   output:
-    links:
-      - title: View on GitHub
-        url: ${{ steps['fetch-repo'].output.httpResponse.data.html_url }}
     text:
-      - title: Repository
-        content: ${{ steps['fetch-repo'].output.httpResponse.data.full_name }}
-      - title: Stars
-        content: ${{ steps['fetch-repo'].output.httpResponse.data.stargazers_count }}
+      - title: Repository JSON
+        content: |
+          Repo full name: ${{ steps.fetchRepo.output.httpResponse.data.full_name }}
+          Stars: ${{ steps.fetchRepo.output.httpResponse.data.stargazers_count }}
