@@ -113,125 +113,78 @@ spec:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/readme
     
-    # Debug Log - Box Format
-    - id: format-output
-      name: Format Repository Data
+    # Create formatted output using debug:log
+    - id: log-formatted
+      name: Log Formatted Output
       action: debug:log
       input:
         message: |
-          ╔════════════════════════════════════════════════════════════════╗
-          ║                    REPOSITORY INFORMATION                      ║
-          ╠════════════════════════════════════════════════════════════════╣
-          ║ Name:        ${{ steps['get-repo'].output.body.full_name }}
-          ║ Visibility:  ${{ steps['get-repo'].output.body.visibility }}
-          ║ Branch:      ${{ steps['get-repo'].output.body.default_branch }}
-          ║ Language:    ${{ steps['get-repo'].output.body.language || 'N/A' }}
-          ╠════════════════════════════════════════════════════════════════╣
-          ║ STATISTICS                                                     ║
-          ╠════════════════════════════════════════════════════════════════╣
-          ║ ⭐ Stars:       ${{ steps['get-repo'].output.body.stargazers_count }}
-          ║ 🍴 Forks:       ${{ steps['get-repo'].output.body.forks_count }}
-          ║ 🐛 Issues:      ${{ steps['get-repo'].output.body.open_issues_count }}
-          ║ 👁️  Watchers:    ${{ steps['get-repo'].output.body.watchers_count }}
-          ╠════════════════════════════════════════════════════════════════╣
-          ║ DATES                                                          ║
-          ╠════════════════════════════════════════════════════════════════╣
-          ║ Created:  ${{ steps['get-repo'].output.body.created_at }}
-          ║ Updated:  ${{ steps['get-repo'].output.body.updated_at }}
-          ║ Pushed:   ${{ steps['get-repo'].output.body.pushed_at }}
-          ╚════════════════════════════════════════════════════════════════╝
+          ═══════════════════════════════════════════════════════
+          📦 REPOSITORY OVERVIEW
+          ═══════════════════════════════════════════════════════
+          
+          Repository: ${{ steps['get-repo'].output.body.full_name }}
+          Description: ${{ steps['get-repo'].output.body.description }}
+          Visibility: ${{ steps['get-repo'].output.body.visibility }}
+          Default Branch: ${{ steps['get-repo'].output.body.default_branch }}
+          Language: ${{ steps['get-repo'].output.body.language }}
+          
+          ───────────────────────────────────────────────────────
+          📊 STATISTICS
+          ───────────────────────────────────────────────────────
+          Stars: ${{ steps['get-repo'].output.body.stargazers_count }}
+          Watchers: ${{ steps['get-repo'].output.body.watchers_count }}
+          Forks: ${{ steps['get-repo'].output.body.forks_count }}
+          Open Issues: ${{ steps['get-repo'].output.body.open_issues_count }}
+          Size: ${{ steps['get-repo'].output.body.size }} KB
+          
+          ───────────────────────────────────────────────────────
+          📅 TIMESTAMPS
+          ───────────────────────────────────────────────────────
+          Created: ${{ steps['get-repo'].output.body.created_at }}
+          Updated: ${{ steps['get-repo'].output.body.updated_at }}
+          Last Push: ${{ steps['get-repo'].output.body.pushed_at }}
+          
+          ───────────────────────────────────────────────────────
+          🔗 URLS
+          ───────────────────────────────────────────────────────
+          GitHub: ${{ steps['get-repo'].output.body.html_url }}
+          Clone: ${{ steps['get-repo'].output.body.clone_url }}
+          
+          ═══════════════════════════════════════════════════════
   
   output:
     text:
-      # ========== OPTION 1: COMPACT SUMMARY ==========
-      - title: 📋 Quick Summary
-        content: |
-          **${{ steps['get-repo'].output.body.full_name }}** (${{ steps['get-repo'].output.body.visibility }})
-          
-          📊 ${{ steps['get-repo'].output.body.stargazers_count }}⭐ | ${{ steps['get-repo'].output.body.forks_count }}🍴 | ${{ steps['get-repo'].output.body.open_issues_count }}🐛 | ${{ steps['get-repo'].output.body.watchers_count }}👁️
-          
-          🔗 ${{ steps['get-repo'].output.body.html_url }}
-          📅 Created: ${{ steps['get-repo'].output.body.created_at }}
-          🔄 Updated: ${{ steps['get-repo'].output.body.updated_at }}
+      # Quick Summary
+      - title: Quick Summary
+        content: "Repository: ${{ steps['get-repo'].output.body.full_name }} | Visibility: ${{ steps['get-repo'].output.body.visibility }} | Stars: ${{ steps['get-repo'].output.body.stargazers_count }} | Forks: ${{ steps['get-repo'].output.body.forks_count }} | Issues: ${{ steps['get-repo'].output.body.open_issues_count }}"
       
-      # ========== OPTION 2: FORMATTED KEY INFORMATION ==========
-      - title: 📦 Repository Overview (Formatted)
+      # Markdown Table Format
+      - title: Repository Details (Table Format)
         content: |
-          📦 **Repository Information**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          Name:           ${{ steps['get-repo'].output.body.full_name }}
-          Description:    ${{ steps['get-repo'].output.body.description || 'No description' }}
-          Visibility:     ${{ steps['get-repo'].output.body.visibility }}
-          Default Branch: ${{ steps['get-repo'].output.body.default_branch }}
-          Language:       ${{ steps['get-repo'].output.body.language || 'Not detected' }}
+          ## ${{ steps['get-repo'].output.body.full_name }}
           
-          📊 **Statistics**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          ⭐ Stars:        ${{ steps['get-repo'].output.body.stargazers_count }}
-          👁️  Watchers:     ${{ steps['get-repo'].output.body.watchers_count }}
-          🍴 Forks:        ${{ steps['get-repo'].output.body.forks_count }}
-          🐛 Open Issues:  ${{ steps['get-repo'].output.body.open_issues_count }}
-          📦 Size:         ${{ steps['get-repo'].output.body.size }} KB
-          
-          📅 **Timestamps**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          Created:     ${{ steps['get-repo'].output.body.created_at }}
-          Updated:     ${{ steps['get-repo'].output.body.updated_at }}
-          Last Push:   ${{ steps['get-repo'].output.body.pushed_at }}
-          
-          🔗 **URLs**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          GitHub:   ${{ steps['get-repo'].output.body.html_url }}
-          Clone:    ${{ steps['get-repo'].output.body.clone_url }}
-          API:      ${{ steps['get-repo'].output.body.url }}
-          
-          ⚙️ **Settings**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          Issues:        ${{ steps['get-repo'].output.body.has_issues }}
-          Projects:      ${{ steps['get-repo'].output.body.has_projects }}
-          Wiki:          ${{ steps['get-repo'].output.body.has_wiki }}
-          Discussions:   ${{ steps['get-repo'].output.body.has_discussions }}
-          Is Template:   ${{ steps['get-repo'].output.body.is_template }}
-          Is Fork:       ${{ steps['get-repo'].output.body.fork }}
-          Is Archived:   ${{ steps['get-repo'].output.body.archived }}
-          
-          🔐 **Permissions**
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          Admin:    ${{ steps['get-repo'].output.body.permissions.admin }}
-          Push:     ${{ steps['get-repo'].output.body.permissions.push }}
-          Pull:     ${{ steps['get-repo'].output.body.permissions.pull }}
-          Maintain: ${{ steps['get-repo'].output.body.permissions.maintain }}
-          Triage:   ${{ steps['get-repo'].output.body.permissions.triage }}
-      
-      # ========== OPTION 3: MARKDOWN TABLES ==========
-      - title: 📊 Repository Details (Markdown Tables)
-        content: |
-          # ${{ steps['get-repo'].output.body.full_name }}
-          
-          > ${{ steps['get-repo'].output.body.description || 'No description provided' }}
-          
-          ## Basic Information
+          ### Basic Information
           
           | Property | Value |
           |----------|-------|
-          | **Name** | `${{ steps['get-repo'].output.body.name }}` |
-          | **Owner** | ${{ steps['get-repo'].output.body.owner.login }} |
-          | **Visibility** | ${{ steps['get-repo'].output.body.visibility }} |
-          | **Default Branch** | `${{ steps['get-repo'].output.body.default_branch }}` |
-          | **Language** | ${{ steps['get-repo'].output.body.language || 'Not detected' }} |
-          | **License** | ${{ steps['get-repo'].output.body.license.name || 'No license' }} |
+          | Name | ${{ steps['get-repo'].output.body.name }} |
+          | Owner | ${{ steps['get-repo'].output.body.owner.login }} |
+          | Visibility | ${{ steps['get-repo'].output.body.visibility }} |
+          | Default Branch | ${{ steps['get-repo'].output.body.default_branch }} |
+          | Language | ${{ steps['get-repo'].output.body.language }} |
           
-          ## Statistics
+          ### Statistics
           
           | Metric | Count |
           |--------|-------|
-          | ⭐ Stars | ${{ steps['get-repo'].output.body.stargazers_count }} |
-          | 🍴 Forks | ${{ steps['get-repo'].output.body.forks_count }} |
-          | 👁️ Watchers | ${{ steps['get-repo'].output.body.watchers_count }} |
-          | 🐛 Open Issues | ${{ steps['get-repo'].output.body.open_issues_count }} |
-          | 📦 Size | ${{ steps['get-repo'].output.body.size }} KB |
+          | Stars | ${{ steps['get-repo'].output.body.stargazers_count }} |
+          | Forks | ${{ steps['get-repo'].output.body.forks_count }} |
+          | Watchers | ${{ steps['get-repo'].output.body.watchers_count }} |
+          | Open Issues | ${{ steps['get-repo'].output.body.open_issues_count }} |
+          | Size | ${{ steps['get-repo'].output.body.size }} KB |
           
-          ## Timestamps
+          ### Timestamps
           
           | Event | Date |
           |-------|------|
@@ -239,66 +192,56 @@ spec:
           | Updated | ${{ steps['get-repo'].output.body.updated_at }} |
           | Last Push | ${{ steps['get-repo'].output.body.pushed_at }} |
           
-          ## Links
+          ### Links
           
-          - 🌐 [View on GitHub](${{ steps['get-repo'].output.body.html_url }})
-          - 📋 [Clone URL](${{ steps['get-repo'].output.body.clone_url }})
-          - 🔌 [API Endpoint](${{ steps['get-repo'].output.body.url }})
-          
-          ## Features
-          
-          - ${{ steps['get-repo'].output.body.has_issues && '✅' || '❌' }} Issues
-          - ${{ steps['get-repo'].output.body.has_projects && '✅' || '❌' }} Projects
-          - ${{ steps['get-repo'].output.body.has_wiki && '✅' || '❌' }} Wiki
-          - ${{ steps['get-repo'].output.body.has_discussions && '✅' || '❌' }} Discussions
-          - ${{ steps['get-repo'].output.body.is_template && '✅' || '❌' }} Template Repository
+          - GitHub: ${{ steps['get-repo'].output.body.html_url }}
+          - Clone: ${{ steps['get-repo'].output.body.clone_url }}
       
-      # ========== OPTION 4: BOX FORMAT (Check Logs) ==========
-      - title: 📦 Box Format Output
-        content: |
-          See logs for box-formatted output (check the debug:log step)
+      # Formatted Output (see logs for better formatting)
+      - title: Formatted Output
+        content: "Check the debug logs for formatted output with proper spacing"
       
-      # ========== RAW JSON OUTPUTS ==========
-      - title: 1. Repository Details (Raw JSON)
+      # Raw JSON Outputs
+      - title: 1. Repository Details (JSON)
         content: |
           ${{ steps['get-repo'].output.body | dump(4) }}
       
-      - title: 2. Branches (Raw JSON)
+      - title: 2. Branches (JSON)
         content: |
           ${{ steps['get-branches'].output.body | dump(4) }}
       
-      - title: 3. Languages (Raw JSON)
+      - title: 3. Languages (JSON)
         content: |
           ${{ steps['get-languages'].output.body | dump(4) }}
       
-      - title: 4. Contributors (Raw JSON)
+      - title: 4. Contributors (JSON)
         content: |
           ${{ steps['get-contributors'].output.body | dump(4) }}
       
-      - title: 5. Recent Commits (Raw JSON)
+      - title: 5. Recent Commits (JSON)
         content: |
           ${{ steps['get-commits'].output.body | dump(4) }}
       
-      - title: 6. Tags (Raw JSON)
+      - title: 6. Tags (JSON)
         content: |
           ${{ steps['get-tags'].output.body | dump(4) }}
       
-      - title: 7. Releases (Raw JSON)
+      - title: 7. Releases (JSON)
         content: |
           ${{ steps['get-releases'].output.body | dump(4) }}
       
-      - title: 8. Pull Requests (Raw JSON)
+      - title: 8. Pull Requests (JSON)
         content: |
           ${{ steps['get-pulls'].output.body | dump(4) }}
       
-      - title: 9. Issues (Raw JSON)
+      - title: 9. Issues (JSON)
         content: |
           ${{ steps['get-issues'].output.body | dump(4) }}
       
-      - title: 10. Topics (Raw JSON)
+      - title: 10. Topics (JSON)
         content: |
           ${{ steps['get-topics'].output.body | dump(4) }}
       
-      - title: 11. README (Raw JSON)
+      - title: 11. README (JSON)
         content: |
           ${{ steps['get-readme'].output.body | dump(4) }}
