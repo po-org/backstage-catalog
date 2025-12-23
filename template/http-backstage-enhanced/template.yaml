@@ -29,7 +29,7 @@ spec:
         verbose: true
         auth:
           type: bearer
-          token: ${{ secrets.githubToken }}
+          token: ${{ secrets.GITHUB_TOKEN }}
         retry:
           enabled: true
           maxRetries: 3
