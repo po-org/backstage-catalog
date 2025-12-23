@@ -54,20 +54,6 @@ steps:
         enabled: true
         maxRetries: 3
 
-steps:
-  - id: fetchRepo
-    name: Fetch GitHub Repository
-    action: http:advanced:request
-    input:
-      method: GET
-      url: https://api.github.com/repos/${{ parameters.repo }}
-      auth:
-        type: bearer
-        token: ${{ secrets.GITHUB_TOKEN }}
-      retry:
-        enabled: true
-        maxRetries: 3
-
   - id: showJson
     name: Show JSON Output
     action: debug:log
