@@ -39,23 +39,3 @@ spec:
         #   enabled: true
         #   intervalMs: 5000
         #   timeoutMs: 60000
-
-steps:
-  - id: fetchRepo
-    name: Fetch GitHub Repository
-    action: http:advanced:request
-    input:
-      method: GET
-      url: https://api.github.com/repos/${{ parameters.repo }}
-      auth:
-        type: bearer
-        token: ${{ secrets.GITHUB_TOKEN }}
-      retry:
-        enabled: true
-        maxRetries: 3
-
-  - id: showJson
-    name: Show JSON Output
-    action: debug:log
-    input:
-      message: ${{ steps.fetchRepo.output.prettyJson }}
