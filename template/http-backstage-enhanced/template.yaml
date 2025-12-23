@@ -59,9 +59,3 @@ spec:
       input:
         message: ${{ steps.fetchRepo.output.prettyJson }}
 
-    - id: debug-token
-      name: Debug GitHub Token
-      action: debug:log
-      input:
-        message: "GITHUB_TOKEN present: ${{ secrets.GITHUB_TOKEN ? 'yes' : 'no' }}"
-
