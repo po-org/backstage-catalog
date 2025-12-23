@@ -22,15 +22,20 @@ spec:
           default: backstage-catalog
 
   steps:
+
     - id: fetch-repo
       name: Fetch Repository with Enhanced HTTP
       action: http:backstage:request:advanced
       input:
+        url: https://api.github.com/repos/${{ parameters.owner }}/${{ parameters.repo }}
         method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
-        logTitle: Repository Data
-        logMessage: Full response from GitHub API
-        indent: 4
+        auth:
+          type: bearer
+          token: ${{ secrets.GITHUB_TOKEN }}  # Optional if public repo
+        retry:
+          enabled: true
+          maxRetries: 3
+        verbose: true
 
   output:
     links:
