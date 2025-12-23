@@ -1,15 +1,15 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: http-advanced-test
-  title: HTTP Advanced Action Test
-  description: Calls the GitHub API using the advanced HTTP action
+  name: http-advanced-pretty-json
+  title: HTTP Advanced – Pretty JSON Output
+  description: Call an API using the advanced HTTP action and render pretty JSON
 spec:
-  owner: user:default/cnell
+  owner: user:default/c-nell
   type: service
 
   parameters:
-    - title: GitHub Repo Info
+    - title: GitHub Repository
       required:
         - repo
       properties:
@@ -19,6 +19,9 @@ spec:
           description: org/repo (e.g. backstage/backstage)
 
   steps:
+    # -------------------------------------------------------
+    # 1. Call your advanced HTTP action
+    # -------------------------------------------------------
     - id: fetchRepo
       name: Fetch GitHub Repository
       action: http:backstage:request:advanced
@@ -26,15 +29,26 @@ spec:
         method: GET
         url: https://api.github.com/repos/${{ parameters.repo }}
         responseType: json
-        verbose: true
         auth:
           type: bearer
           token: ${{ secrets.GITHUB_TOKEN }}
         retry:
           enabled: true
           maxRetries: 3
+        verbose: true
+
+    # -------------------------------------------------------
+    # 2. Format the response as pretty JSON
+    # -------------------------------------------------------
+    - id: prettyJson
+      name: Format Response as Pretty JSON
+      action: json:format
+      input:
+        inputObject: ${{ steps.fetchRepo.output.httpResponse }}
+        indent: 2
+
   output:
     text:
-      - title: Full Response
+      - title: Pretty JSON Response
         content: |
-          ${{ steps.fetchRepo.output.httpResponse | toJson }}
+          ${{ steps.prettyJson.output.prettyJson }}
