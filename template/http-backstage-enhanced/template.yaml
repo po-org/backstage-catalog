@@ -40,6 +40,6 @@ spec:
       name: Show JSON Output
       action: debug:log
       input:
-        text: ${{ steps.fetchRepo.output.prettyJson }}
+        message: ${{ steps.fetchRepo.output.prettyJson }}
 
 
