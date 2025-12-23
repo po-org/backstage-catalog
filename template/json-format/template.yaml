@@ -67,7 +67,7 @@ spec:
           | Forks | 🍴 ${{ steps['get-repo'].output.body.forks_count }} |
           | URL | ${{ steps['get-repo'].output.body.html_url }} |
       
-      - title: Repository Summary (Full JSON)
+      - title: Repository Summary (JSON Code Block)
         content: |
 ```json
           ${{ steps['get-repo'].output.body | dump(2) }}
