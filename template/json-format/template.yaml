@@ -1,12 +1,12 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-repo-multi-endpoint
-  title: GitHub Repo - Multiple Endpoints
+  name: github-repo-pretty-json-output
+  namespace: default
+  title: GitHub Repo - Pretty JSON Output
 spec:
   owner: user:default/c-nell
   type: service
-  
   parameters:
     - title: Repository
       required:
@@ -21,147 +21,62 @@ spec:
           title: Repository
           type: string
           default: backstage-catalog
-  
   steps:
-    # Repository Details
     - id: get-repo
-      name: Get Repository Details
+      name: Get Repository
       action: http:backstage:request
       input:
         method: GET
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
-    
-    # Branches
-    - id: get-branches
-      name: Get Branches
-      action: http:backstage:request
+    - id: log-output
+      name: Log Pretty JSON
+      action: debug:log:pretty
       input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/branches
-    
-    # Languages
-    - id: get-languages
-      name: Get Languages
-      action: http:backstage:request
+        title: Repository Data
+        message: Full response from GitHub API
+        data: ${{ steps['get-repo'].output.body }}
+    - id: log-metadata
+      name: Log Response Metadata
+      action: debug:log:pretty
       input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/languages
-    
-    # Contributors
-    - id: get-contributors
-      name: Get Contributors
-      action: http:backstage:request
+        title: Response Metadata
+        data:
+          status: ${{ steps['get-repo'].output.code }}
+          headers: ${{ steps['get-repo'].output.headers }}
+    - id: log-summary
+      name: Log Repository Summary
+      action: debug:log:pretty
       input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/contributors
-    
-    # Recent Commits
-    - id: get-commits
-      name: Get Recent Commits
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/commits?per_page=10
-    
-    # Tags
-    - id: get-tags
-      name: Get Tags
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/tags
-    
-    # Releases
-    - id: get-releases
-      name: Get Releases
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/releases
-    
-    # Pull Requests
-    - id: get-pulls
-      name: Get Pull Requests
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/pulls?state=all&per_page=10
-    
-    # Issues
-    - id: get-issues
-      name: Get Issues
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/issues?state=all&per_page=10
-    
-    # Topics
-    - id: get-topics
-      name: Get Topics
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/topics
-        headers:
-          Accept: application/vnd.github.mercy-preview+json
-    
-    # README
-    - id: get-readme
-      name: Get README
-      action: http:backstage:request
-      input:
-        method: GET
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}/readme
-  
+        title: Repository Summary
+        message: Key information about the repository
+        indent: 4
+        data:
+          name: ${{ steps['get-repo'].output.body.name }}
+          full_name: ${{ steps['get-repo'].output.body.full_name }}
+          owner: ${{ steps['get-repo'].output.body.owner.login }}
+          stars: ${{ steps['get-repo'].output.body.stargazers_count }}
+          forks: ${{ steps['get-repo'].output.body.forks_count }}
+          url: ${{ steps['get-repo'].output.body.html_url }}
   output:
+    links:
+      - title: View Repository
+        url: ${{ steps['get-repo'].output.body.html_url }}
     text:
-      # ========== FORMATTED VIEWS ==========
-      
-      # Quick Summary
-      - title: "📋 Quick Summary"
-        content: "Repository: ${{ steps['get-repo'].output.body.full_name }} | Visibility: ${{ steps['get-repo'].output.body.visibility }} | Stars: ${{ steps['get-repo'].output.body.stargazers_count }} | Forks: ${{ steps['get-repo'].output.body.forks_count }} | Issues: ${{ steps['get-repo'].output.body.open_issues_count }}"
-      
-      # Repository Details - Table Format
-      - title: "📊 Repository Details (Table Format)"
+      - title: Repository Name
         content: |
-          ## ${{ steps['get-repo'].output.body.full_name }}
-          
-          ### Basic Information
-          
-          | Property | Value |
-          |----------|-------|
-          | Name | ${{ steps['get-repo'].output.body.name }} |
-          | Owner | ${{ steps['get-repo'].output.body.owner.login }} |
-          | Visibility | ${{ steps['get-repo'].output.body.visibility }} |
-          | Default Branch | ${{ steps['get-repo'].output.body.default_branch }} |
-          | Language | ${{ steps['get-repo'].output.body.language }} |
-          
-          ### Statistics
-          
-          | Metric | Count |
-          |--------|-------|
-          | Stars | ${{ steps['get-repo'].output.body.stargazers_count }} |
-          | Forks | ${{ steps['get-repo'].output.body.forks_count }} |
-          | Watchers | ${{ steps['get-repo'].output.body.watchers_count }} |
-          | Open Issues | ${{ steps['get-repo'].output.body.open_issues_count }} |
-          | Size | ${{ steps['get-repo'].output.body.size }} KB |
-          
-          ### Timestamps
-          
-          | Event | Date |
-          |-------|------|
-          | Created | ${{ steps['get-repo'].output.body.created_at }} |
-          | Updated | ${{ steps['get-repo'].output.body.updated_at }} |
-          | Last Push | ${{ steps['get-repo'].output.body.pushed_at }} |
-          
-          ### Links
-          
-          - GitHub: ${{ steps['get-repo'].output.body.html_url }}
-          - Clone: ${{ steps['get-repo'].output.body.clone_url }}
-      
-      # ========== JSON VIEWS ==========
-      
-      # Repository JSON
-      - title: "📦 Repository Details (JSON)"
+          ${{ steps['get-repo'].output.body.full_name }}
+      - title: Stars
+        content: |
+          ⭐ ${{ steps['get-repo'].output.body.stargazers_count }}
+      - title: Repository Summary
         content: |
 ```json
+          {
+            "name": "${{ steps['get-repo'].output.body.name }}",
+            "full_name": "${{ steps['get-repo'].output.body.full_name }}",
+            "owner": "${{ steps['get-repo'].output.body.owner.login }}",
+            "stars": ${{ steps['get-repo'].output.body.stargazers_count }},
+            "forks": ${{ steps['get-repo'].output.body.forks_count }},
+            "url": "${{ steps['get-repo'].output.body.html_url }}"
+          }
+```
