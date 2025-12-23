@@ -37,18 +37,4 @@ spec:
           maxRetries: 3
         verbose: true
 
-    # -------------------------------------------------------
-    # 2. Format the response as pretty JSON
-    # -------------------------------------------------------
-    - id: prettyJson
-      name: Format Response as Pretty JSON
-      action: json:format
-      input:
-        inputObject: ${{ steps.fetchRepo.output.httpResponse }}
-        indent: 2
 
-  output:
-    text:
-      - title: Pretty JSON Response
-        content: |
-          ${{ steps.prettyJson.output.prettyJson }}
