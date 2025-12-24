@@ -74,9 +74,11 @@ spec:
           ✅ Pretty JSON output formatting
           ✅ Multiple API endpoint fetching
           ✅ Sensitive data masking
+          
+          Repository Information:
+          ${{ steps.showPrettyJson.output.formattedOutput }}
+          
+          Recent Commits:
+          ${{ steps.showPrettyJsonCommits.output.formattedOutput }}
       - title: Repository
         content: ${{ parameters.owner }}/${{ parameters.repoName }}
-      - title: Repository Data
-        content: |
-          Full repository details displayed above in pretty JSON format.
-          Check the commits section for recent activity.
