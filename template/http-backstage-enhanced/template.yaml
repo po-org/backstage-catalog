@@ -36,24 +36,24 @@ spec:
         headers:
           Accept: application/vnd.github.v3+json
     
-    # Step 2: Display the response using http-pretty-output
-    - id: showPrettyJson
-      name: Display Pretty JSON Output
-      action: http-pretty-output:log
-      input:
-        stepName: fetchRepo      # Reference the step above
-        outputKey: body          # http:backstage:request stores response in 'body'
-        maskKeys: []             # Add any sensitive keys to mask here
+  #   # Step 2: Display the response using http-pretty-output
+  #   - id: showPrettyJson
+  #     name: Display Pretty JSON Output
+  #     action: http-pretty-output:log
+  #     input:
+  #       stepName: fetchRepo      # Reference the step above
+  #       outputKey: body          # http:backstage:request stores response in 'body'
+  #       maskKeys: []             # Add any sensitive keys to mask here
 
-  output:
-    links:
-      - title: GitHub Repository
-        url: ${{ steps.fetchRepo.output.body.html_url }}
-    text:
-      - title: Repository Information
-        content: |
-          **Repository:** ${{ steps.fetchRepo.output.body.full_name }}
-          **Description:** ${{ steps.fetchRepo.output.body.description }}
-          **Stars:** ${{ steps.fetchRepo.output.body.stargazers_count }}
-          **Forks:** ${{ steps.fetchRepo.output.body.forks_count }}
-          **Language:** ${{ steps.fetchRepo.output.body.language }}
+  # output:
+  #   links:
+  #     - title: GitHub Repository
+  #       url: ${{ steps.fetchRepo.output.body.html_url }}
+  #   text:
+  #     - title: Repository Information
+  #       content: |
+  #         **Repository:** ${{ steps.fetchRepo.output.body.full_name }}
+  #         **Description:** ${{ steps.fetchRepo.output.body.description }}
+  #         **Stars:** ${{ steps.fetchRepo.output.body.stargazers_count }}
+  #         **Forks:** ${{ steps.fetchRepo.output.body.forks_count }}
+  #         **Language:** ${{ steps.fetchRepo.output.body.language }}
