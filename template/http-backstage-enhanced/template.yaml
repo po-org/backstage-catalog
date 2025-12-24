@@ -56,39 +56,4 @@ spec:
         data: ${{ steps.fetchCommits.output.body }}
         maskKeys: [token, secret]
     
-    # Format JSON for output display
-    - id: formatRepoJson
-      name: Format Repository JSON
-      action: debug:log
-      input:
-        message: ${{ steps.fetchRepo.output.body | dump(2) }}
-    
-    - id: formatCommitsJson
-      name: Format Commits JSON
-      action: debug:log
-      input:
-        message: ${{ steps.fetchCommits.output.body | dump(2) }}
-  
-  # ========================================
-  # OUTPUT
-  # ========================================
-  output:
-    links:
-      - title: 🔗 View Repository on GitHub
-        url: https://github.com/${{ parameters.owner }}/${{ parameters.repoName }}
-      - title: 📊 Repository Commits
-        url: https://github.com/${{ parameters.owner }}/${{ parameters.repoName }}/commits
-    text:
-      - title: Template Completed
-        content: |
-          Successfully fetched GitHub repository data!
-          
-          Features demonstrated:
-          ✅ HTTP proxy requests via http:backstage:request
-          ✅ Pretty JSON output formatting
-          ✅ Multiple API endpoint fetching
-          ✅ Sensitive data masking
-          
-          📋 Repository and commit data have been formatted and displayed in the task logs above.
-      - title: Repository
-        content: ${{ parameters.owner }}/${{ parameters.repoName }}
+
