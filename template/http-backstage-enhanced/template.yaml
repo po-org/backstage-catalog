@@ -35,11 +35,26 @@ spec:
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
           Accept: application/vnd.github.v3+json
-    
+
+    - id: fetchCommits
+      name: Fetch GitHub Commits
+      action: http:backstage:request
+      input:
+        method: GET
+        # Note: Use 'path' instead of 'url' for proxy requests
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}/commits
+        headers:
+          Accept: application/vnd.github.v3+json
+
     # Pass data using template syntax (not step reference)
     - id: showPrettyJson
       action: http-pretty-output:log
       input:
         data: ${{ steps.fetchRepo.output.body }}  # ✅ Template resolves this
         maskKeys: [token, secret]
-    
+
+    - id: showPrettyJsonCommits
+      action: http-pretty-output:log
+      input:
+        data: ${{ steps.fetchCommits.output.body }}  # ✅ Template resolves this
+        maskKeys: [token, secret]
