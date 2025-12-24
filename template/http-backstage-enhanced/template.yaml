@@ -75,8 +75,8 @@ spec:
           ✅ Multiple API endpoint fetching
           ✅ Sensitive data masking
       - title: Repository Information
-        content: ${{ steps.fetchRepo.output.body | dump }}
+        content: ${{ steps.showPrettyJson.output }}
       - title: Recent Commits
-        content: ${{ steps.fetchCommits.output.body | dump }}
+        content: ${{ steps.showPrettyJsonCommits.output }}
       - title: Repository
         content: ${{ parameters.owner }}/${{ parameters.repoName }}
