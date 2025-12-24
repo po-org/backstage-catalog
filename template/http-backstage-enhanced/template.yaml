@@ -55,7 +55,7 @@ spec:
         data: ${{ steps.fetchCommits.output.body }}  # ✅ Template resolves this
         maskKeys: [token, secret]
   
-  # ========================================
+# ========================================
   # OUTPUT
   # ========================================
   output:
@@ -76,9 +76,13 @@ spec:
           ✅ Sensitive data masking
           
           Repository Information:
-          ${{ steps.showPrettyJson.output.formattedOutput }}
+```json
+          ${{ steps.fetchRepo.output.body | dump }}
+```
           
           Recent Commits:
-          ${{ steps.showPrettyJsonCommits.output.formattedOutput }}
+```json
+          ${{ steps.fetchCommits.output.body | dump }}
+```
       - title: Repository
         content: ${{ parameters.owner }}/${{ parameters.repoName }}
