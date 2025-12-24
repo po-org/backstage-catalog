@@ -74,15 +74,9 @@ spec:
           ✅ Pretty JSON output formatting
           ✅ Multiple API endpoint fetching
           ✅ Sensitive data masking
-          
-          Repository Information:
-```json
-          ${{ steps.fetchRepo.output.body | dump }}
-```
-          
-          Recent Commits:
-```json
-          ${{ steps.fetchCommits.output.body | dump }}
-```
+      - title: Repository Information
+        content: ${{ steps.fetchRepo.output.body | dump }}
+      - title: Recent Commits
+        content: ${{ steps.fetchCommits.output.body | dump }}
       - title: Repository
         content: ${{ parameters.owner }}/${{ parameters.repoName }}
