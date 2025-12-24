@@ -24,7 +24,6 @@ spec:
           type: string
           description: Repository name
           default: backstage
-
   steps:
     - id: fetchRepo
       name: Fetch GitHub Repository
@@ -35,7 +34,6 @@ spec:
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
           Accept: application/vnd.github.v3+json
-
     - id: fetchCommits
       name: Fetch GitHub Commits
       action: http:backstage:request
@@ -45,16 +43,40 @@ spec:
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}/commits
         headers:
           Accept: application/vnd.github.v3+json
-
     # Pass data using template syntax (not step reference)
     - id: showPrettyJson
       action: http-pretty-output:log
       input:
         data: ${{ steps.fetchRepo.output.body }}  # ✅ Template resolves this
         maskKeys: [token, secret]
-
     - id: showPrettyJsonCommits
       action: http-pretty-output:log
       input:
         data: ${{ steps.fetchCommits.output.body }}  # ✅ Template resolves this
         maskKeys: [token, secret]
+  
+  # ========================================
+  # OUTPUT
+  # ========================================
+  output:
+    links:
+      - title: 🔗 View Repository on GitHub
+        url: https://github.com/${{ parameters.owner }}/${{ parameters.repoName }}
+      - title: 📊 Repository Commits
+        url: https://github.com/${{ parameters.owner }}/${{ parameters.repoName }}/commits
+    text:
+      - title: Template Completed
+        content: |
+          Successfully fetched GitHub repository data!
+          
+          Features demonstrated:
+          ✅ HTTP proxy requests via http:backstage:request
+          ✅ Pretty JSON output formatting
+          ✅ Multiple API endpoint fetching
+          ✅ Sensitive data masking
+      - title: Repository
+        content: ${{ parameters.owner }}/${{ parameters.repoName }}
+      - title: Repository Data
+        content: |
+          Full repository details displayed above in pretty JSON format.
+          Check the commits section for recent activity.
