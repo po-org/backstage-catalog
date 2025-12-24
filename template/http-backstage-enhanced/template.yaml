@@ -24,36 +24,18 @@ spec:
           type: string
           description: Repository name
           default: backstage
+
   steps:
-    # Step 1: Fetch GitHub repository data
     - id: fetchRepo
-      name: Fetch GitHub Repository
       action: http:backstage:request
       input:
         method: GET
-        # Note: Use 'path' instead of 'url' for proxy requests
-        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
-        headers:
-          Accept: application/vnd.github.v3+json
+        path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repo }}
     
-  #   # Step 2: Display the response using http-pretty-output
-  #   - id: showPrettyJson
-  #     name: Display Pretty JSON Output
-  #     action: http-pretty-output:log
-  #     input:
-  #       stepName: fetchRepo      # Reference the step above
-  #       outputKey: body          # http:backstage:request stores response in 'body'
-  #       maskKeys: []             # Add any sensitive keys to mask here
-
-  # output:
-  #   links:
-  #     - title: GitHub Repository
-  #       url: ${{ steps.fetchRepo.output.body.html_url }}
-  #   text:
-  #     - title: Repository Information
-  #       content: |
-  #         **Repository:** ${{ steps.fetchRepo.output.body.full_name }}
-  #         **Description:** ${{ steps.fetchRepo.output.body.description }}
-  #         **Stars:** ${{ steps.fetchRepo.output.body.stargazers_count }}
-  #         **Forks:** ${{ steps.fetchRepo.output.body.forks_count }}
-  #         **Language:** ${{ steps.fetchRepo.output.body.language }}
+    # Pass data using template syntax (not step reference)
+    - id: showPrettyJson
+      action: http-pretty-output:log
+      input:
+        data: ${{ steps.fetchRepo.output.body }}  # ✅ Template resolves this
+        maskKeys: [token, secret]
+    
