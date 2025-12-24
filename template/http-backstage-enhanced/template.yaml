@@ -30,32 +30,46 @@ spec:
       action: http:backstage:request
       input:
         method: GET
-        # Note: Use 'path' instead of 'url' for proxy requests
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}
         headers:
           Accept: application/vnd.github.v3+json
+    
     - id: fetchCommits
       name: Fetch GitHub Commits
       action: http:backstage:request
       input:
         method: GET
-        # Note: Use 'path' instead of 'url' for proxy requests
         path: /proxy/github/repos/${{ parameters.owner }}/${{ parameters.repoName }}/commits
         headers:
           Accept: application/vnd.github.v3+json
-    # Pass data using template syntax (not step reference)
+    
+    # Log to console with pretty formatting
     - id: showPrettyJson
       action: http-pretty-output:log
       input:
-        data: ${{ steps.fetchRepo.output.body }}  # ✅ Template resolves this
+        data: ${{ steps.fetchRepo.output.body }}
         maskKeys: [token, secret]
+    
     - id: showPrettyJsonCommits
       action: http-pretty-output:log
       input:
-        data: ${{ steps.fetchCommits.output.body }}  # ✅ Template resolves this
+        data: ${{ steps.fetchCommits.output.body }}
         maskKeys: [token, secret]
+    
+    # Format JSON for output display
+    - id: formatRepoJson
+      name: Format Repository JSON
+      action: debug:log
+      input:
+        message: ${{ steps.fetchRepo.output.body | dump(2) }}
+    
+    - id: formatCommitsJson
+      name: Format Commits JSON
+      action: debug:log
+      input:
+        message: ${{ steps.fetchCommits.output.body | dump(2) }}
   
-# ========================================
+  # ========================================
   # OUTPUT
   # ========================================
   output:
@@ -74,9 +88,7 @@ spec:
           ✅ Pretty JSON output formatting
           ✅ Multiple API endpoint fetching
           ✅ Sensitive data masking
-      - title: Repository Information
-        content: ${{ steps.showPrettyJson.output }}
-      - title: Recent Commits
-        content: ${{ steps.showPrettyJsonCommits.output }}
+          
+          📋 Repository and commit data have been formatted and displayed in the task logs above.
       - title: Repository
         content: ${{ parameters.owner }}/${{ parameters.repoName }}
