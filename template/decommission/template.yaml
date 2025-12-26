@@ -58,7 +58,7 @@ spec:
           description: >
             This action is destructive. Only check this box if you are authorized.
           type: boolean
-          # default: false
+          default: ""
 
   steps:
     # ------------------------------------------------------------
