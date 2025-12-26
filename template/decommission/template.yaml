@@ -77,12 +77,23 @@ spec:
           } | dump }}
 
     # ------------------------------------------------------------
+    # MESSAGE WHEN SKIPPED (INVERSE CONDITION)
+    # ------------------------------------------------------------
+    - id: decomm-skipped
+      name: Decommission skipped
+      if: ${{ parameters.confirm_phrase != "DECOMMISSION" }}
+      action: debug:log
+      input:
+        message: >
+          Decommission workflow was NOT launched.
+          Reason: confirmation phrase was not provided or did not match "DECOMMISSION".
+    
+    # ------------------------------------------------------------
     # AAP WORKFLOW — STRONGLY GATED
     # ------------------------------------------------------------
     - id: call-decomm-workflow
       name: Call Ansible AAP workflow (decommission)
       if: ${{ parameters.confirm_phrase == "DECOMMISSION" }}
-      # if: ${{ parameters.confirm_decommission == true && parameters.confirm_phrase == "DECOMMISSION"}}
       action: http:backstage:request
       input:
         method: POST
