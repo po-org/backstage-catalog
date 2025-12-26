@@ -4,9 +4,9 @@ metadata:
   name: decommission-request-form
   title: Decommission Servers (AAP Workflow)
   description: >
-    Self-service - Request decommission workflow for servers (launches AAP workflow template).
-    Use this form to request that a set of servers be decommissioned. The request is recorded
-    in Backstage Catalog for traceability and an AAP workflow is launched.
+    Self-service request to decommission servers.
+    Launches an Ansible AAP workflow and records the request
+    in Backstage for audit and traceability.
   tags:
     - decommission
     - aap
@@ -19,9 +19,9 @@ spec:
   parameters:
     - title: Decommission Configuration
       description: |
-        Quick steps:
+        Steps:
         1) Add server FQDNs
-        2) Optionally provide extra_vars
+        2) (Optional) Provide extra_vars
         3) Confirm authorization and submit
       required:
         - servers
@@ -29,9 +29,7 @@ spec:
       properties:
         servers:
           title: Servers to decommission
-          description: >
-            Enter one fully-qualified hostname per item
-            (example: hostname.ds.irsnet.gov).
+          description: One fully-qualified hostname per entry
           type: array
           minItems: 1
           uniqueItems: true
@@ -46,9 +44,8 @@ spec:
         extra_vars:
           title: Optional extra_vars (advanced)
           description: >
-            Optional JSON object passed to the workflow.
-            Example: {"drain": true, "skip_checks": false}.
-            Do NOT include secrets.
+            Optional JSON object passed to the AAP workflow.
+            Example: {"drain": true, "skip_checks": false}
           type: object
           default: {}
           ui:
@@ -65,22 +62,10 @@ spec:
 
   steps:
     # ------------------------------------------------------------
-    # HARD SAFETY GATE
-    # ------------------------------------------------------------
-    - id: require-confirmation
-      name: Require authorization confirmation
-      if: ${{ parameters.confirm_decommission != true }}
-      action: debug:fail
-      input:
-        message: >
-          Decommission request aborted.
-          You must confirm authorization by checking the confirmation box.
-
-    # ------------------------------------------------------------
-    # AUDIT LOG (YAML-SAFE)
+    # AUDIT / TRACEABILITY LOG (ALWAYS RUNS)
     # ------------------------------------------------------------
     - id: review_parameters
-      name: Review parameters
+      name: Review request details
       action: debug:log
       input:
         message: |
@@ -95,10 +80,11 @@ spec:
           } | dump }}
 
     # ------------------------------------------------------------
-    # AAP WORKFLOW INVOCATION
+    # AAP WORKFLOW — HARD GATED BY CONFIRMATION
     # ------------------------------------------------------------
     - id: call-decomm-workflow
       name: Call Ansible AAP workflow (decommission)
+      if: ${{ parameters.confirm_decommission == true }}
       action: http:backstage:request
       input:
         method: POST
