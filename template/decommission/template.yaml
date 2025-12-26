@@ -41,17 +41,17 @@ spec:
             options:
               placeholder: "hostname.ds.irsnet.gov"
 
-        extra_vars:
-          title: Optional extra_vars (advanced)
-          description: >
-            Optional JSON object passed to the AAP workflow.
-            Example: {"drain": true, "skip_checks": false}
-          type: object
-          default: {}
-          ui:
-            widget: json
-            options:
-              collapsed: true
+        # extra_vars:
+        #   title: Optional extra_vars (advanced)
+        #   description: >
+        #     Optional JSON object passed to the AAP workflow.
+        #     Example: {"drain": true, "skip_checks": false}
+        #   type: object
+        #   default: {}
+        #   ui:
+        #     widget: json
+        #     options:
+        #       collapsed: true
 
         confirm_decommission:
           title: I confirm these server(s) should be decommissioned and I am authorized
