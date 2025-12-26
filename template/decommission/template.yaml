@@ -81,10 +81,7 @@ spec:
     # ------------------------------------------------------------
     - id: call-decomm-workflow
       name: Call Ansible AAP workflow (decommission)
-      if: ${{ 
-        parameters.confirm_decommission == true &&
-        parameters.confirm_phrase == "DECOMMISSION"
-      }}
+      if: ${{ parameters.confirm_decommission == true && parameters.confirm_phrase == "DECOMMISSION" }}
       # if: ${{ parameters.confirm_decommission == true && parameters.confirm_phrase == "DECOMMISSION"}}
       action: http:backstage:request
       input:
