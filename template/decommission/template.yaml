@@ -46,7 +46,7 @@ spec:
         confirm_decommission:
           title: I confirm I am authorized to decommission these servers
           type: boolean
-          default: false
+          # default: false
 
         confirm_phrase:
           title: Type DECOMMISSION to confirm
@@ -81,7 +81,7 @@ spec:
     # ------------------------------------------------------------
     - id: call-decomm-workflow
       name: Call Ansible AAP workflow (decommission)
-      if: ${{ parameters.confirm_decommission == true && parameters.confirm_phrase == "DECOMMISSION" }}
+      if: ${{ parameters.confirm_decommission == true }}
       action: http:backstage:request
       input:
         method: POST
