@@ -86,7 +86,7 @@ spec:
       input:
         message: >
           Decommission workflow was NOT launched.
-          Reason: confirmation phrase was not provided or did not match "DECOMMISSION".
+          Reason: confirmation phrase was not provided or did not match "DECOMMISSION" phrase.
     
     # ------------------------------------------------------------
     # AAP WORKFLOW — STRONGLY GATED
