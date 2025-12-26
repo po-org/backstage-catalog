@@ -4,13 +4,14 @@ metadata:
   name: decommission-request-form
   title: Decommission Servers (AAP Workflow)
   description: >
-    Self-service - Request decomission workflow for servers (launches AAP workflow template).
+    Self-service - Request decommission workflow for servers (launches AAP workflow template).
     Use this form to request that a set of servers be decommissioned. The request is recorded
     in Backstage Catalog for traceability and an AAP workflow is launched.
   tags:
     - decommission
     - aap
     - workflow
+
 spec:
   owner: user:default/c-nell
   type: service
@@ -19,70 +20,102 @@ spec:
     - title: Decommission Configuration
       description: |
         Quick steps:
-        1) Add server FQDNs (one per tag). 2) Optionally provide `extra_vars` (advanced). 3) Confirm and submit.
-      required: 
+        1) Add server FQDNs (one per entry)
+        2) Optionally provide extra_vars (advanced)
+        3) Confirm authorization and submit
+      required:
         - servers
         - confirm_decommission
       properties:
-        servers: 
-          title: Server to decomission
+        servers:
+          title: Servers to decommission
           description: >
-            Enter one fully-qualified hostname per item (example: hostname.ds.irsnet.gov).
-            Use Enter or the > button to add multiple entries. Duplicates are prevented.
+            Enter one fully-qualified hostname per item
+            (example: hostname.ds.irsnet.gov).
+            Use Enter or the > button to add multiple entries.
+            Duplicates are prevented.
           type: array
           minItems: 1
           uniqueItems: true
           items:
             type: string
-            # pattern: '^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$'
             title: Server FQDN
-          ui: 
+          ui:
             widget: tags
-            options: 
-              placeholder: "hostame.ds.irsnet.gov"
+            options:
+              placeholder: "hostname.ds.irsnet.gov"
 
         extra_vars:
           title: Optional extra_vars (advanced)
           description: >
-            Optional JSON object that will be provided to the workflow as user-supplied variables.
-            Example: {"drain": true, "skip_checks": false}. Avoid secrets in extra_vars.
+            Optional JSON object passed to the workflow as user-supplied variables.
+            Example: {"drain": true, "skip_checks": false}.
+            Do NOT include secrets.
           type: object
           default: {}
           ui:
             widget: json
             options:
               collapsed: true
-          
+
         confirm_decommission:
-          title: I confirm these server(s) should be decommissioned and I have Authorization
-          description: This action is destructive. Only check this box if you are authorized to decommission the listed servers.
+          title: I confirm these server(s) should be decommissioned and I am authorized
+          description: >
+            This action is destructive. Only check this box if you are authorized
+            to decommission the listed servers.
           type: boolean
+          default: false
 
   steps:
+    # ------------------------------------------------------------
+    # HARD SAFETY GATE — TEMPLATE FAILS IF NOT CONFIRMED
+    # ------------------------------------------------------------
+    - id: require-confirmation
+      name: Require authorization confirmation
+      if: ${{ parameters.confirm_decommission != true }}
+      action: debug:fail
+      input:
+        message: >
+          Decommission request aborted.
+          You must confirm authorization by checking the confirmation box
+          before this workflow can proceed.
+
+    # ------------------------------------------------------------
+    # AUDIT / TRACEABILITY LOG
+    # ------------------------------------------------------------
     - id: review_parameters
       name: Review parameters
       action: debug:log
       input:
-        message: ${{ {"summary":"Decommission request summary","requestor":user.entity.spec.profile.email,"contact":user.entity.metadata.name,
-          "timestamp":now(),"server":parameters.servers,"extra_vars":parameters.extra_vars,"confirmation":parameters.confirm_decommission} | dump }}
+        message: ${{ {
+          "summary": "Decommission request submitted",
+          "requestor_email": user.entity.spec.profile.email,
+          "requestor_id": user.entity.metadata.name,
+          "timestamp": now(),
+          "servers": parameters.servers,
+          "extra_vars": parameters.extra_vars,
+          "confirmed": parameters.confirm_decommission
+        } | dump }}
 
+    # ------------------------------------------------------------
+    # AAP WORKFLOW INVOCATION
+    # ------------------------------------------------------------
     - id: call-decomm-workflow
       name: Call Ansible AAP workflow (decommission)
       action: http:backstage:request
-      input: 
-        method: "POST"
+      input:
+        method: POST
         path: /proxy/aap-prod/api/v2/workflow_templates/12345/launch/
         headers:
-          content-type: "application/json"
-
+          content-type: application/json
         body: |
           ${{ {
             "extra_vars": {
-              "servers": parameters.servers, 
-              "request_email": user.entity.spec.profile.email, 
-              "request_seid": user.entity.metadata.name,
+              "servers": parameters.servers,
+              "request_email": user.entity.spec.profile.email,
+              "request_seid": user.entity.metadata.name
             },
-            "user_extra_vars": parameters.extra_vars,
+            "user_extra_vars": parameters.extra_vars
           } | dump }}
-          logRequestPath: true
-          continueOnBadResponse: true
+        logRequestPath: true
+        continueOnBadResponse: false
