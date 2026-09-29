@@ -1,0 +1,352 @@
+Welcome to the OpenShift Web Terminal. Type "help" for a list of installed CLI tools.
+bash-5.1 ~ $ echo "===== PROJECT ====="
+oc project
+
+echo
+echo "===== DEPLOYMENT ====="
+oc get deployment redhat-developer-hub
+
+echo
+echo "===== CONTAINERS ====="
+oc get deployment redhat-developer-hub \
+  -o jsonpath='{range .spec.template.spec.containers[*]}CONTAINER{" | "}{.name}{" | "}{.image}{"\n"}{end}'
+
+oc get events --sort-by='.lastTimestamp' | tail -40[*]}{.name}{" | ready="}{.ready}{" | restarts="}{.restartCount}{" | image="}{.image}{"\n"}{end}'"}{end}{end}'
+===== PROJECT =====
+Using project "poteatc-dev" from context named "poteatc-context" on server "https://172.30.0.1:443".
+
+===== DEPLOYMENT =====
+NAME                   READY   UP-TO-DATE   AVAILABLE   AGE
+redhat-developer-hub   1/1     1            1           19d
+
+===== CONTAINERS =====
+CONTAINER | backstage-backend | registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22
+CONTAINER | lightspeed-core | registry.redhat.io/lightspeed-core/lightspeed-stack-rhel9@sha256:babc23ef7baba4e985c421307b0524b8cd009813d268c99d48881ddf2f1ada67
+
+===== INIT CONTAINERS =====
+INIT | install-dynamic-plugins | registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22
+INIT | lightspeed-rag-init | registry.redhat.io/rhdh/rhdh-rag-content-rhel9@sha256:b414dd3cbbec4d88b937c6134ff87fc417e49a40be32057db63476a47cce91c2
+
+===== CONFIGMAPS =====
+redhat-developer-hub-app-config                1      19d
+redhat-developer-hub-dynamic-plugins           1      19d
+redhat-developer-hub-lightspeed-config         1      19d
+redhat-developer-hub-lightspeed-rhdh-profile   1      19d
+redhat-developer-hub-lightspeed-stack          1      19d
+
+===== SECRETS =====
+redhat-developer-hub-lightspeed-secret                Opaque                         17     19d
+
+===== VOLUMES =====
+dynamic-plugins-root | configMap= | secret=
+dynamic-plugins | configMap=redhat-developer-hub-dynamic-plugins | secret=
+dynamic-plugins-npmrc | configMap= | secret=redhat-developer-hub-dynamic-plugins-npmrc
+dynamic-plugins-registry-auth | configMap= | secret=redhat-developer-hub-dynamic-plugins-registry-auth
+npmcacache | configMap= | secret=
+extensions-catalog | configMap= | secret=
+temp | configMap= | secret=
+backstage-app-config | configMap=redhat-developer-hub-app-config | secret=
+lightspeed-data | configMap= | secret=
+lightspeed-rag | configMap= | secret=
+lightspeed-config-stack | configMap=redhat-developer-hub-lightspeed-stack | secret=
+lightspeed-config-config | configMap=redhat-developer-hub-lightspeed-config | secret=
+lightspeed-config-rhdh-profile | configMap=redhat-developer-hub-lightspeed-rhdh-profile | secret=
+
+===== CONTAINER VOLUME MOUNTS =====
+
+CONTAINER: backstage-backend
+  backstage-app-config -> /opt/app-root/src/app-config-from-configmap.yaml
+  dynamic-plugins-root -> /opt/app-root/src/dynamic-plugins-root
+  extensions-catalog -> /extensions
+  temp -> /tmp
+
+CONTAINER: lightspeed-core
+  lightspeed-data -> /tmp
+  lightspeed-rag -> /rag-content
+  lightspeed-config-stack -> /app-root/lightspeed-stack.yaml
+  lightspeed-config-config -> /app-root/config.yaml
+  lightspeed-config-rhdh-profile -> /app-root/rhdh-profile.py
+
+===== PODS =====
+NAME                                         READY   STATUS    RESTARTS   AGE
+redhat-developer-hub-6464d54c78-jdbt2        2/2     Running   0          30m
+redhat-developer-hub-postgresql-0            1/1     Running   0          30m
+workspace52fb95b14f2f492d-6d75f5b6b8-72v74   2/2     Running   0          23m
+
+===== POD STATUS =====
+POD=redhat-developer-hub-6464d54c78-jdbt2
+backstage-backend | ready=true | restarts=0 | image=registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22
+lightspeed-core | ready=true | restarts=0 | image=registry.redhat.io/lightspeed-core/lightspeed-stack-rhel9@sha256:babc23ef7baba4e985c421307b0524b8cd009813d268c99d48881ddf2f1ada67
+
+===== INIT STATUS =====
+install-dynamic-plugins | ready=true | restarts=0 | image=registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22
+lightspeed-rag-init | ready=true | restarts=0 | image=registry.redhat.io/rhdh/rhdh-rag-content-rhel9@sha256:b414dd3cbbec4d88b937c6134ff87fc417e49a40be32057db63476a47cce91c2
+
+===== LIGHTSPEED REFERENCES =====
+      annotations:
+        checksum/app-config: f49621d82aed798fc5a499e5084d646f56f322b827a2c1f45019f8b2d7fd6281
+        checksum/dynamic-plugins: 4e7ddf168b01dc5fa0c27ef1a9a5e8d0c0ff6923101a5c504b717b57e6eeecdb
+        checksum/lightspeed-configmaps: 03caef4cf85c521f783f18ff100847474f9158f63ab84db29f1a1f89d434dab2
+        checksum/lightspeed-secret: 1e7a23705e2e76ed48f694c8d80456326598d5b0c5db9e25b9aadef6ae481e18
+      labels:
+        app.kubernetes.io/component: backstage
+        app.kubernetes.io/instance: redhat-developer-hub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: developer-hub
+        helm.sh/chart: upstream-2.7.0
+    spec:
+      containers:
+      - args:
+        - --config
+        - dynamic-plugins-root/app-config.dynamic-plugins.yaml
+        - --config
+--
+          name: temp
+      - envFrom:
+        - secretRef:
+            name: redhat-developer-hub-lightspeed-secret
+            optional: false
+        image: registry.redhat.io/lightspeed-core/lightspeed-stack-rhel9@sha256:babc23ef7baba4e985c421307b0524b8cd009813d268c99d48881ddf2f1ada67
+        imagePullPolicy: IfNotPresent
+        name: lightspeed-core
+        ports:
+        - containerPort: 8080
+          name: http-lightspeed
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+--
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: lightspeed-data
+        - mountPath: /rag-content
+          name: lightspeed-rag
+        - mountPath: /app-root/lightspeed-stack.yaml
+          name: lightspeed-config-stack
+          readOnly: true
+          subPath: lightspeed-stack.yaml
+        - mountPath: /app-root/config.yaml
+          name: lightspeed-config-config
+          readOnly: true
+          subPath: config.yaml
+        - mountPath: /app-root/rhdh-profile.py
+          name: lightspeed-config-rhdh-profile
+          readOnly: true
+          subPath: rhdh-profile.py
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - ./install-dynamic-plugins.sh
+        - /dynamic-plugins-root
+        env:
+        - name: NPM_CONFIG_USERCONFIG
+          value: /opt/app-root/src/.npmrc.dynamic-plugins
+        - name: MAX_ENTRY_SIZE
+          value: "40000000"
+--
+          name: temp
+        workingDir: /opt/app-root/src
+      - args:
+        - mkdir -p /tmp/data && echo 'Copying Lightspeed RAG data...' && cp -r --no-preserve=mode,ownership
+          /rag/vector_db /rag-content/ && cp -r --no-preserve=mode,ownership /rag/embeddings_model
+          /rag-content/ && mkdir -p /rag-content/vector_db/notebooks && chmod -R a+rwX
+          /rag-content/embeddings_model /rag-content/vector_db && echo 'Copy complete.'
+        command:
+        - sh
+        - -c
+        image: registry.redhat.io/rhdh/rhdh-rag-content-rhel9@sha256:b414dd3cbbec4d88b937c6134ff87fc417e49a40be32057db63476a47cce91c2
+        imagePullPolicy: IfNotPresent
+        name: lightspeed-rag-init
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+          requests:
+            cpu: 50m
+            memory: 150Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+--
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: lightspeed-data
+        - mountPath: /rag-content
+          name: lightspeed-rag
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: default
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - ephemeral:
+          volumeClaimTemplate:
+            metadata: {}
+            spec:
+              accessModes:
+--
+          name: redhat-developer-hub-app-config
+        name: backstage-app-config
+      - emptyDir: {}
+        name: lightspeed-data
+      - emptyDir: {}
+        name: lightspeed-rag
+      - configMap:
+          defaultMode: 420
+          name: redhat-developer-hub-lightspeed-stack
+          optional: false
+        name: lightspeed-config-stack
+      - configMap:
+          defaultMode: 420
+          name: redhat-developer-hub-lightspeed-config
+          optional: false
+        name: lightspeed-config-config
+      - configMap:
+          defaultMode: 420
+          name: redhat-developer-hub-lightspeed-rhdh-profile
+          optional: false
+        name: lightspeed-config-rhdh-profile
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-09-09T16:09:29Z"
+    lastUpdateTime: "2026-09-09T16:13:28Z"
+    message: ReplicaSet "redhat-developer-hub-6464d54c78" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2026-09-29T10:51:02Z"
+    lastUpdateTime: "2026-09-29T10:51:02Z"
+    message: Deployment has minimum availability.
+
+===== RECENT EVENTS =====
+30m         Normal    Scheduled                pod/redhat-developer-hub-postgresql-0                                              Successfully assigned poteatc-dev/redhat-developer-hub-postgresql-0 to ip-10-0-13-132.ec2.internal
+30m         Warning   FailedScheduling         pod/redhat-developer-hub-6464d54c78-jdbt2                                          0/21 nodes are available: waiting for ephemeral volume controller to create the persistentvolumeclaim "redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root". not found
+30m         Normal    Scheduled                pod/redhat-developer-hub-6464d54c78-jdbt2                                          Successfully assigned poteatc-dev/redhat-developer-hub-6464d54c78-jdbt2 to ip-10-0-13-132.ec2.internal
+30m         Normal    SuccessfulCreate         statefulset/redhat-developer-hub-postgresql                                        create Pod redhat-developer-hub-postgresql-0 in StatefulSet redhat-developer-hub-postgresql successful
+30m         Normal    SuccessfulAttachVolume   pod/redhat-developer-hub-postgresql-0                                              AttachVolume.Attach succeeded for volume "pvc-88153fd9-7194-4104-a402-b7c88d63eca5"
+30m         Normal    ScalingReplicaSet        deployment/redhat-developer-hub                                                    Scaled up replica set redhat-developer-hub-6464d54c78 from 0 to 1
+30m         Normal    SuccessfulCreate         replicaset/redhat-developer-hub-6464d54c78                                         Created pod: redhat-developer-hub-6464d54c78-jdbt2
+30m         Normal    WaitForPodScheduled      persistentvolumeclaim/redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root   waiting for pod redhat-developer-hub-6464d54c78-jdbt2 to be scheduled
+30m         Normal    ExternalProvisioning     persistentvolumeclaim/redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root   Waiting for a volume to be created either by the external provisioner 'ebs.csi.aws.com' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+30m         Normal    Provisioning             persistentvolumeclaim/redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root   External provisioner is provisioning volume for claim "poteatc-dev/redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root"
+30m         Normal    ProvisioningSucceeded    persistentvolumeclaim/redhat-developer-hub-6464d54c78-jdbt2-dynamic-plugins-root   Successfully provisioned volume pvc-65975b86-9699-4bdb-83ec-a2446db15e0e
+30m         Normal    SuccessfulAttachVolume   pod/redhat-developer-hub-6464d54c78-jdbt2                                          AttachVolume.Attach succeeded for volume "pvc-65975b86-9699-4bdb-83ec-a2446db15e0e"
+30m         Normal    Started                  pod/redhat-developer-hub-postgresql-0                                              Started container postgresql
+30m         Normal    Created                  pod/redhat-developer-hub-postgresql-0                                              Created container: postgresql
+30m         Normal    Pulled                   pod/redhat-developer-hub-postgresql-0                                              Container image "registry.redhat.io/rhel9/postgresql-15@sha256:26ca481f6fea9df09cb9e758188ad96382262d7487b104b1d6fd97b9b1ad15c9" already present on machine
+30m         Normal    AddedInterface           pod/redhat-developer-hub-postgresql-0                                              Add eth0 [10.128.4.100/23] from ovn-kubernetes
+30m         Normal    Started                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Started container install-dynamic-plugins
+30m         Normal    AddedInterface           pod/redhat-developer-hub-6464d54c78-jdbt2                                          Add eth0 [10.128.4.101/23] from ovn-kubernetes
+30m         Normal    Pulled                   pod/redhat-developer-hub-6464d54c78-jdbt2                                          Container image "registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22" already present on machine
+30m         Normal    Created                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Created container: install-dynamic-plugins
+28m         Normal    Pulled                   pod/redhat-developer-hub-6464d54c78-jdbt2                                          Container image "registry.redhat.io/rhdh/rhdh-rag-content-rhel9@sha256:b414dd3cbbec4d88b937c6134ff87fc417e49a40be32057db63476a47cce91c2" already present on machine
+28m         Normal    Started                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Started container lightspeed-rag-init
+28m         Normal    Created                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Created container: lightspeed-rag-init
+28m         Normal    Pulled                   pod/redhat-developer-hub-6464d54c78-jdbt2                                          Container image "registry.redhat.io/rhdh/rhdh-hub-rhel9@sha256:89bc3cbd94424ee813be2c1b1660b12894860393195ad212cbeb349615c91b22" already present on machine
+28m         Normal    Created                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Created container: backstage-backend
+28m         Normal    Started                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Started container backstage-backend
+28m         Normal    Pulled                   pod/redhat-developer-hub-6464d54c78-jdbt2                                          Container image "registry.redhat.io/lightspeed-core/lightspeed-stack-rhel9@sha256:babc23ef7baba4e985c421307b0524b8cd009813d268c99d48881ddf2f1ada67" already present on machine
+28m         Normal    Started                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Started container lightspeed-core
+28m         Normal    Created                  pod/redhat-developer-hub-6464d54c78-jdbt2                                          Created container: lightspeed-core
+23m         Normal    SuccessfulCreate         replicaset/workspace52fb95b14f2f492d-6d75f5b6b8                                    Created pod: workspace52fb95b14f2f492d-6d75f5b6b8-72v74
+23m         Normal    ScalingReplicaSet        deployment/workspace52fb95b14f2f492d                                               Scaled up replica set workspace52fb95b14f2f492d-6d75f5b6b8 from 0 to 1
+23m         Normal    AddedInterface           pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Add eth0 [10.131.15.242/23] from ovn-kubernetes
+23m         Normal    Pulling                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Pulling image "registry.redhat.io/web-terminal/web-terminal-tooling-rhel9@sha256:ea0c7650daeaa9533e8f9fec8b1dca21e9a8f2cff06821b27c47135a7d6faa2f"
+23m         Normal    Created                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Created container: web-terminal-tooling
+23m         Normal    Pulling                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Pulling image "registry.redhat.io/web-terminal/web-terminal-exec-rhel9@sha256:336497ada02d963faf3741930b41ad4ae461f361f50f9d436b2f5becdda7526c"
+23m         Normal    Started                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Started container web-terminal-tooling
+23m         Normal    Pulled                   pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Successfully pulled image "registry.redhat.io/web-terminal/web-terminal-tooling-rhel9@sha256:ea0c7650daeaa9533e8f9fec8b1dca21e9a8f2cff06821b27c47135a7d6faa2f" in 4.294s (4.294s including waiting). Image size: 754030402 bytes.
+23m         Normal    Pulled                   pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Successfully pulled image "registry.redhat.io/web-terminal/web-terminal-exec-rhel9@sha256:336497ada02d963faf3741930b41ad4ae461f361f50f9d436b2f5becdda7526c" in 651ms (651ms including waiting). Image size: 163319575 bytes.
+23m         Normal    Created                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Created container: web-terminal-exec
+23m         Normal    Started                  pod/workspace52fb95b14f2f492d-6d75f5b6b8-72v74                                     Started container web-terminal-exec
+bash-5.1 ~ $ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+echo "===== PROJECT ====="
+oc project
+
+echo
+echo "===== DEPLOYMENT ====="
+oc get deployment redhat-developer-hub
+
+echo
+echo "===== CONTAINERS ====="
+oc get deployment redhat-developer-hub \
+  -o jsonpath='{range .spec.template.spec.containers[*]}CONTAINER{" | "}{.name}{" | "}{.image}{"\n"}{end}'
+
+echo
+echo "===== INIT CONTAINERS ====="
+oc get deployment redhat-developer-hub \
+  -o jsonpath='{range .spec.template.spec.initContainers[*]}INIT{" | "}{.name}{" | "}{.image}{"\n"}{end}'
+
+echo
+echo "===== CONFIGMAPS ====="
+oc get configmap | grep -Ei 'rhdh|backstage|plugin|dynamic|app|light'
+
+echo
+echo "===== SECRETS ====="
+oc get secret | grep -Ei 'rhdh|backstage|plugin|dynamic|app|light'
+
+echo
+echo "===== LIGHTSPEED DEPLOYMENT REFERENCES ====="
+oc get deployment redhat-developer-hub -o yaml | \
+  grep -i -B3 -A12 'lightspeed'
+
+echo
+echo "===== VOLUMES ====="
+oc get deployment redhat-developer-hub \
+  -o jsonpath='{range .spec.template.spec.volumes[*]}{.name}{" | configMap="}{.configMap.name}{" | secret="}{.secret.secretName}{"\n"}{end}'
+
+echo
+echo "===== CONTAINER VOLUME MOUNTS ====="
+oc get deployment redhat-developer-hub \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{"\nCONTAINER: "}{.name}{"\n"}{range .volumeMounts[*]}{"  "}{.name}{" -> "}{.mountPath}{"\n"}{end}{end}'
+
+echo
+echo "===== PODS ====="
+oc get pods
+
+echo
+echo "===== POD STATUS ====="
+RHDH_POD=$(oc get pods -o name | grep '^pod/redhat-developer-hub-' | grep -v postgresql | head -1 | cut -d/ -f2)
+
+echo "POD=$RHDH_POD"
+
+oc get pod "$RHDH_POD" \
+  -o jsonpath='{range .status.containerStatuses[*]}{.name}{" | ready="}{.ready}{" | restarts="}{.restartCount}{" | image="}{.image}{"\n"}{end}'
+
+echo
+echo "===== INIT STATUS ====="
+oc get pod "$RHDH_POD" \
+  -o jsonpath='{range .status.initContainerStatuses[*]}{.name}{" | ready="}{.ready}{" | restarts="}{.restartCount}{" | image="}{.image}{"\n"}{end}'
+
+echo
+echo "===== EVENTS ====="
+oc get events --sort-by='.lastTimestamp' | tail -40
